@@ -90,8 +90,12 @@ export default function PostDetailPage() {
           </div>
         </div>
 
-        {/* Image */}
-        {post.image && <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover" />}
+        {/* Media */}
+        {post.video ? (
+          <video src={post.video} controls className="w-full max-h-[600px] bg-black" />
+        ) : post.image ? (
+          <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover" />
+        ) : null}
 
         {/* Caption */}
         {post.caption && (

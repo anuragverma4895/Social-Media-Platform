@@ -71,12 +71,19 @@ const resendOTP = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'New OTP sent to your email.' });
 });
 
-// POST /api/auth/login
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email }).select('+password');
+  const identifier = email ? email.trim().toLowerCase() : '';
+  const passStr = password ? String(password) : '';
+  
+  const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] }).select('+password');
 
-  if (!user || !(await user.comparePassword(password))) {
+  console.log(`[LOGIN DEBUG] Identifier: ${identifier}, User found: ${!!user}, Has password: ${!!user?.password}`);
+  if (user) {
+    const match = await user.comparePassword(passStr);
+    console.log(`[LOGIN DEBUG] Password match: ${match}`);
+    if (!match) return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  } else {
     return res.status(401).json({ success: false, message: 'Invalid email or password' });
   }
   if (!user.isEmailVerified) {

@@ -72,12 +72,14 @@ export default function PostCard({ post, onDelete }) {
         )}
       </div>
 
-      {/* Image */}
-      {post.image && (
+      {/* Media */}
+      {post.video ? (
+        <video src={post.video} controls className="w-full max-h-[600px] bg-black" />
+      ) : post.image ? (
         <Link to={`/posts/${post._id}`}>
           <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover cursor-pointer" />
         </Link>
-      )}
+      ) : null}
 
       {/* Actions */}
       <div className="px-4 pt-3 pb-1 flex items-center gap-5">

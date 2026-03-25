@@ -17,7 +17,8 @@ const createPost = asyncHandler(async (req, res) => {
   const post = await Post.create({
     author: req.user._id,
     caption: caption || '',
-    image: req.file ? req.file.path : '',
+    image: req.file && !req.file.mimetype.startsWith('video') ? req.file.path : '',
+    video: req.file && req.file.mimetype.startsWith('video') ? req.file.path : '',
     hashtags: allHashtags,
   });
 
@@ -39,8 +40,19 @@ const getFeed = asyncHandler(async (req, res) => {
     .populate('author', 'username profilePicture name')
     .populate('comments.user', 'username profilePicture');
 
+  const orphanIds = posts.filter(p => !p.author).map(p => p._id);
+  if (orphanIds.length > 0) {
+    const orphanPosts = posts.filter(p => !p.author);
+    for (const p of orphanPosts) {
+      if (p.image) await deleteFromCloudinary(p.image);
+      if (p.video) await deleteFromCloudinary(p.video);
+    }
+    Post.deleteMany({ _id: { $in: orphanIds } }).catch(console.error);
+  }
+
+  const validPosts = posts.filter(p => p.author);
   const total = await Post.countDocuments({ author: { $in: feedIds }, isDeleted: false });
-  res.json({ success: true, data: posts, pagination: { page, limit, total, pages: Math.ceil(total / limit), hasMore: skip + posts.length < total } });
+  res.json({ success: true, data: validPosts, pagination: { page, limit, total, pages: Math.ceil(total / limit), hasMore: skip + validPosts.length < total } });
 });
 
 // GET /api/posts/explore
@@ -52,9 +64,20 @@ const explorePosts = asyncHandler(async (req, res) => {
   const posts = await Post.find({ isDeleted: false })
     .sort({ likes: -1, createdAt: -1 }).skip(skip).limit(limit)
     .populate('author', 'username profilePicture name');
+  const orphanIds = posts.filter(p => !p.author).map(p => p._id);
+  if (orphanIds.length > 0) {
+    const orphanPosts = posts.filter(p => !p.author);
+    for (const p of orphanPosts) {
+      if (p.image) await deleteFromCloudinary(p.image);
+      if (p.video) await deleteFromCloudinary(p.video);
+    }
+    Post.deleteMany({ _id: { $in: orphanIds } }).catch(console.error);
+  }
+
+  const validPosts = posts.filter(p => p.author);
   const total = await Post.countDocuments({ isDeleted: false });
 
-  res.json({ success: true, data: posts, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+  res.json({ success: true, data: validPosts, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
 });
 
 // GET /api/posts/:postId
@@ -64,6 +87,10 @@ const getPost = asyncHandler(async (req, res) => {
     .populate('comments.user', 'username profilePicture name')
     .populate('likes', 'username profilePicture');
   if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
+  if (!post.author) {
+    Post.findByIdAndDelete(post._id).catch(console.error);
+    return res.status(404).json({ success: false, message: 'Post not found' });
+  }
   res.json({ success: true, data: post });
 });
 
@@ -168,9 +195,21 @@ const getPostsByHashtag = asyncHandler(async (req, res) => {
   const posts = await Post.find({ hashtags: tag, isDeleted: false })
     .sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)
     .populate('author', 'username profilePicture name');
+
+  const orphanIds = posts.filter(p => !p.author).map(p => p._id);
+  if (orphanIds.length > 0) {
+    const orphanPosts = posts.filter(p => !p.author);
+    for (const p of orphanPosts) {
+      if (p.image) await deleteFromCloudinary(p.image);
+      if (p.video) await deleteFromCloudinary(p.video);
+    }
+    Post.deleteMany({ _id: { $in: orphanIds } }).catch(console.error);
+  }
+
+  const validPosts = posts.filter(p => p.author);
   const total = await Post.countDocuments({ hashtags: tag, isDeleted: false });
 
-  res.json({ success: true, data: posts, pagination: { page, limit, total } });
+  res.json({ success: true, data: validPosts, pagination: { page, limit, total } });
 });
 
 module.exports = { createPost, getFeed, explorePosts, getPost, deletePost, likeUnlike, addComment, deleteComment, sharePost, getPostsByHashtag };

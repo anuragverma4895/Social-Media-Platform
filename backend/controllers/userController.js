@@ -22,8 +22,8 @@ const getUserProfile = asyncHandler(async (req, res) => {
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, bio, username } = req.body;
   const updates = {};
-  if (name)             updates.name = name;
-  if (bio !== undefined) updates.bio = bio;
+  if (name !== undefined) updates.name = name;
+  if (bio !== undefined)  updates.bio = bio;
 
   if (username && username !== req.user.username) {
     const exists = await User.findOne({ username });
@@ -97,7 +97,7 @@ const searchUsers = asyncHandler(async (req, res) => {
 
   const users = await User.find({
     $or: [{ username: { $regex: q, $options: 'i' } }, { name: { $regex: q, $options: 'i' } }],
-    isActive: true, isBanned: false, _id: { $ne: req.user._id },
+    isActive: true, isBanned: false,
   }).select('username name profilePicture bio followers').limit(20);
 
   res.json({ success: true, data: users });

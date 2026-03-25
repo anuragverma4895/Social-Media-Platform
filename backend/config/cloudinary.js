@@ -19,13 +19,20 @@ console.log("Cloudinary Config:", {
 // ✅ Post Image Storage
 const postStorage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    folder: 'socialmern/posts',
-    format: file.mimetype.split('/')[1], // FIX (important)
-    transformation: [
-      { width: 1080, height: 1080, crop: 'limit', quality: 'auto' },
-    ],
-  }),
+  params: async (req, file) => {
+    const isVideo = file.mimetype.startsWith('video');
+    const params = {
+      folder: 'socialmern/posts',
+      resource_type: isVideo ? 'video' : 'image',
+    };
+    if (!isVideo) {
+      params.format = file.mimetype.split('/')[1];
+      params.transformation = [
+        { width: 1080, height: 1080, crop: 'limit', quality: 'auto' },
+      ];
+    }
+    return params;
+  },
 });
 
 // ─────────────────────────────────────────────
@@ -45,7 +52,7 @@ const profileStorage = new CloudinaryStorage({
 // ✅ Upload middleware
 const uploadPostImage = multer({
   storage: postStorage,
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit to allow videos
 });
 
 const uploadProfileImage = multer({
@@ -59,12 +66,17 @@ const deleteFromCloudinary = async (imageUrl) => {
   try {
     if (!imageUrl) return;
 
-    const parts = imageUrl.split('/');
-    const fileWithExt = parts[parts.length - 1];
-    const filename = fileWithExt.split('.')[0];
-    const folder = parts[parts.length - 2];
+    const urlObj = new URL(imageUrl);
+    const pathParts = urlObj.pathname.split('/');
+    
+    const uploadIndex = pathParts.findIndex(p => p === 'upload');
+    if (uploadIndex === -1) return;
+    
+    const resourceType = pathParts[uploadIndex - 1] === 'video' ? 'video' : 'image';
+    const publicIdWithExt = pathParts.slice(uploadIndex + 2).join('/');
+    const publicId = publicIdWithExt.substring(0, publicIdWithExt.lastIndexOf('.'));
 
-    await cloudinary.uploader.destroy(`${folder}/${filename}`);
+    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
   } catch (err) {
     console.error('Cloudinary delete error:', err.message);
   }

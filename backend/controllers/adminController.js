@@ -87,7 +87,10 @@ const deleteUser = asyncHandler(async (req, res) => {
   if (user.role === 'admin') return res.status(400).json({ success: false, message: 'Cannot delete admin' });
 
   const posts = await Post.find({ author: user._id });
-  for (const post of posts) { if (post.image) await deleteFromCloudinary(post.image); }
+  for (const post of posts) { 
+    if (post.image) await deleteFromCloudinary(post.image); 
+    if (post.video) await deleteFromCloudinary(post.video);
+  }
   await Post.deleteMany({ author: user._id });
   if (user.profilePicture) await deleteFromCloudinary(user.profilePicture);
   await User.updateMany({ followers: user._id }, { $pull: { followers: user._id } });
@@ -111,6 +114,7 @@ const adminDeletePost = asyncHandler(async (req, res) => {
   const post = await Post.findById(req.params.postId);
   if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
   if (post.image) await deleteFromCloudinary(post.image);
+  if (post.video) await deleteFromCloudinary(post.video);
   post.isDeleted     = true;
   post.deletedReason = req.body.reason || 'Content policy violation';
   await post.save();

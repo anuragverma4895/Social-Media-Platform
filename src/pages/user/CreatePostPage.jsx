@@ -11,34 +11,34 @@ export default function CreatePostPage() {
   const fileRef = useRef();
 
   const [caption, setCaption] = useState('');
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
+  const [media, setMedia] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState('');
   const [hashtags, setHashtags] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const handleImageChange = (e) => {
+  const handleMediaChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 10 * 1024 * 1024) return toast.error('Image must be under 10MB');
-    setImage(file);
-    setImagePreview(URL.createObjectURL(file));
+    if (file.size > 50 * 1024 * 1024) return toast.error('File must be under 50MB (Max ~10 min video)');
+    setMedia(file);
+    setMediaPreview(URL.createObjectURL(file));
   };
 
-  const removeImage = () => {
-    setImage(null);
-    setImagePreview('');
+  const removeMedia = () => {
+    setMedia(null);
+    setMediaPreview('');
     if (fileRef.current) fileRef.current.value = '';
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!caption && !image) return toast.error('Add a caption or image to your post');
+    if (!caption && !media) return toast.error('Add a caption or media to your post');
 
     setLoading(true);
     try {
       const formData = new FormData();
       if (caption) formData.append('caption', caption);
-      if (image) formData.append('image', image);
+      if (media) formData.append('image', media);
       if (hashtags.length > 0) formData.append('hashtags', JSON.stringify(hashtags));
 
       await postAPI.createPost(formData);
@@ -56,12 +56,16 @@ export default function CreatePostPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Post</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Image upload */}
+        {/* Media upload */}
         <div className="card p-4">
-          {imagePreview ? (
+          {mediaPreview ? (
             <div className="relative">
-              <img src={imagePreview} alt="Preview" className="w-full max-h-80 object-cover rounded-xl" />
-              <button type="button" onClick={removeImage}
+              {media?.type?.startsWith('video') ? (
+                <video src={mediaPreview} controls className="w-full max-h-80 object-cover rounded-xl" />
+              ) : (
+                <img src={mediaPreview} alt="Preview" className="w-full max-h-80 object-cover rounded-xl" />
+              )}
+              <button type="button" onClick={removeMedia}
                 className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors">
                 <XMarkIcon className="w-5 h-5" />
               </button>
@@ -70,11 +74,11 @@ export default function CreatePostPage() {
             <button type="button" onClick={() => fileRef.current?.click()}
               className="w-full border-2 border-dashed border-gray-200 rounded-xl p-12 flex flex-col items-center justify-center text-gray-400 hover:border-primary-300 hover:text-primary-400 transition-colors group">
               <PhotoIcon className="w-12 h-12 mb-3 group-hover:scale-110 transition-transform" />
-              <p className="font-medium">Click to upload an image</p>
-              <p className="text-xs mt-1">JPG, PNG, WebP, GIF — Max 10MB</p>
+              <p className="font-medium">Click to upload image or video</p>
+              <p className="text-xs mt-1">JPG, PNG, GIF, MP4 (Max 50MB, upto 10 mins)</p>
             </button>
           )}
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+          <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleMediaChange} />
         </div>
 
         {/* Caption */}
@@ -95,7 +99,7 @@ export default function CreatePostPage() {
         {/* Submit */}
         <div className="flex gap-3">
           <button type="button" onClick={() => navigate(-1)} className="btn-secondary flex-1">Cancel</button>
-          <button type="submit" disabled={loading || (!caption && !image)} className="btn-primary flex-1 flex items-center justify-center gap-2">
+          <button type="submit" disabled={loading || (!caption && !media)} className="btn-primary flex-1 flex items-center justify-center gap-2">
             <ArrowUpTrayIcon className="w-4 h-4" />
             {loading ? 'Publishing...' : 'Publish Post'}
           </button>
