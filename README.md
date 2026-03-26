@@ -63,3 +63,11 @@ npm run dev                 # Terminal 2 (root)
 
 See **SETUP.md** for detailed instructions.
 See **DEPLOYMENT.md** for Vercel + Render deployment.
+
+## 🛡️ Default Admin Access
+
+To access the admin panel at `/admin/login`, use the following default credentials:
+
+- **Email:** `admin@socialmern.com`
+- **Password:** `AdminPassword123!`
+- **Admin Secret Key:** `admin_secret_key_12345` *(This must match the `ADMIN_SECRET_KEY` in your backend `.env` file)*
