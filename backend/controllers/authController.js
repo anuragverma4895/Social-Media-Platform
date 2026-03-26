@@ -74,10 +74,15 @@ const resendOTP = asyncHandler(async (req, res) => {
 
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const identifier = email ? email.trim().toLowerCase() : '';
+  const identifier = email ? email.trim() : '';
   const passStr = password ? String(password) : '';
   
-  const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] }).select('+password');
+  const user = await User.findOne({ 
+    $or: [
+      { email: { $regex: new RegExp(`^${identifier}$`, 'i') } }, 
+      { username: { $regex: new RegExp(`^${identifier}$`, 'i') } }
+    ] 
+  }).select('+password');
 
   console.log(`[LOGIN DEBUG] Identifier: ${identifier}, User found: ${!!user}, Has password: ${!!user?.password}`);
   if (user) {
