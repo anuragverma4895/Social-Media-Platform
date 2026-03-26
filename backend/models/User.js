@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 
     // Email verification
-    isEmailVerified:  { type: Boolean, default: false },
+    isEmailVerified:  { type: Boolean, default: true },
     emailOTP:         { type: String, select: false },
     emailOTPExpiry:   { type: Date,   select: false },
 

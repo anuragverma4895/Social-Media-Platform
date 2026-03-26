@@ -13,20 +13,21 @@ const signup = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: `${field} already exists` });
   }
 
-  const otp = generateOTP();
   const user = await User.create({
     username, email, password,
     name: name || username,
-    emailOTP: otp,
-    emailOTPExpiry: new Date(Date.now() + 10 * 60 * 1000),
+    isEmailVerified: true, // Auto verify all accounts
   });
 
-  await sendVerificationEmail(email, username, otp);
+  const token = generateToken(user._id, user.role);
 
   res.status(201).json({
     success: true,
-    message: 'Account created! Check your email for the verification OTP.',
-    data: { userId: user._id, email: user.email },
+    message: 'Account created successfully!',
+    data: { 
+      token, 
+      user: { _id: user._id, username: user.username, email: user.email, name: user.name, profilePicture: user.profilePicture, role: user.role }
+    },
   });
 });
 
@@ -86,13 +87,8 @@ const login = asyncHandler(async (req, res) => {
   } else {
     return res.status(401).json({ success: false, message: 'Invalid email or password' });
   }
-  if (!user.isEmailVerified) {
-    return res.status(401).json({
-      success: false,
-      message: 'Please verify your email first.',
-      data: { userId: user._id, requiresVerification: true },
-    });
-  }
+  // Removed verify email check to allow login for everyone
+
   if (user.isBanned) {
     return res.status(403).json({ success: false, message: `Account banned: ${user.banReason || 'Policy violation'}` });
   }
@@ -135,16 +131,15 @@ const verifyResetOTP = asyncHandler(async (req, res) => {
 
 // POST /api/auth/reset-password
 const resetPassword = asyncHandler(async (req, res) => {
-  const { userId, otp, newPassword } = req.body;
-  const user = await User.findById(userId).select('+password +passwordResetOTP +passwordResetOTPExpiry');
-
-  if (!user || user.passwordResetOTP !== otp) return res.status(400).json({ success: false, message: 'Invalid request' });
-  if (new Date() > user.passwordResetOTPExpiry) return res.status(400).json({ success: false, message: 'OTP expired' });
+  const { email, newPassword } = req.body;
+  if (!email || !newPassword) return res.status(400).json({ success: false, message: 'Email and new password required' });
+  
+  const user = await User.findOne({ email }).select('+password');
+  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+  
   if (newPassword.length < 6) return res.status(400).json({ success: false, message: 'Password min 6 characters' });
 
-  user.password               = newPassword;
-  user.passwordResetOTP       = undefined;
-  user.passwordResetOTPExpiry = undefined;
+  user.password = newPassword;
   await user.save();
 
   res.json({ success: true, message: 'Password reset successfully!' });

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext.jsx';
 import { authAPI } from '../../services/api.js';
 import toast from 'react-hot-toast';
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const { loginWithToken } = useAuth();
   const [form, setForm] = useState({ username: '', email: '', password: '', name: '' });
   const [loading, setLoading] = useState(false);
 
@@ -13,8 +15,9 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const { data } = await authAPI.signup(form);
-      toast.success('Account created! Check your email for verification OTP.');
-      navigate('/verify-email', { state: { userId: data.data.userId, email: form.email } });
+      loginWithToken(data.data.user, data.data.token);
+      toast.success('Account created successfully!');
+      navigate('/feed');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Signup failed');
     } finally {
