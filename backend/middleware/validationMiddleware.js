@@ -16,7 +16,7 @@ const signupValidation = [
 ];
 
 const loginValidation = [
-  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+  body('email').trim().notEmpty().withMessage('Email or username is required'),
   body('password').notEmpty().withMessage('Password required'),
 ];
 

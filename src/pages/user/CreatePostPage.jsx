@@ -42,7 +42,7 @@ export default function CreatePostPage() {
       if (hashtags.length > 0) formData.append('hashtags', JSON.stringify(hashtags));
 
       await postAPI.createPost(formData);
-      toast.success('Post published! 🎉');
+      toast.success('Post published!');
       navigate('/feed');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to create post');

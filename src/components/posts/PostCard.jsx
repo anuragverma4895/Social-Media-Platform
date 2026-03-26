@@ -4,6 +4,10 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import { postAPI } from '../../services/api.js'
 import toast from 'react-hot-toast'
 import { formatDistanceToNow } from 'date-fns'
+import {
+  HeartIcon, ChatBubbleOvalLeftIcon, ArrowPathRoundedSquareIcon, TrashIcon,
+} from '@heroicons/react/24/outline'
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'
 
 export default function PostCard({ post, onDelete }) {
   const { user } = useAuth()
@@ -29,7 +33,7 @@ export default function PostCard({ post, onDelete }) {
       await postAPI.sharePost(post._id)
       setShares(p => p + 1)
       await navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`)
-      toast.success('Link copied! 🔗')
+      toast.success('Link copied!')
     } catch { toast.error('Failed to share') }
   }
 
@@ -47,7 +51,7 @@ export default function PostCard({ post, onDelete }) {
   const avatarUrl = (username) => `https://ui-avatars.com/api/?name=${username}&background=667eea&color=fff`
 
   return (
-    <article className="card mb-4 hover:shadow-md transition-shadow duration-200">
+    <article className="card mb-4 hover:shadow-md transition-all duration-300">
       {/* Header */}
       <div className="flex items-center justify-between p-4">
         <Link to={`/${post.author?.username}`} className="flex items-center gap-3 group">
@@ -66,8 +70,8 @@ export default function PostCard({ post, onDelete }) {
           </div>
         </Link>
         {(isOwner || isAdmin) && (
-          <button onClick={handleDelete} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">
-            🗑️
+          <button onClick={handleDelete} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200 group">
+            <TrashIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
           </button>
         )}
       </div>
@@ -77,7 +81,7 @@ export default function PostCard({ post, onDelete }) {
         <video src={post.video} controls className="w-full max-h-[600px] bg-black" />
       ) : post.image ? (
         <Link to={`/posts/${post._id}`}>
-          <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover cursor-pointer" />
+          <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover cursor-pointer hover:brightness-95 transition-all duration-200" />
         </Link>
       ) : null}
 
@@ -85,15 +89,21 @@ export default function PostCard({ post, onDelete }) {
       <div className="px-4 pt-3 pb-1 flex items-center gap-5">
         <button onClick={handleLike}
           className={`flex items-center gap-1.5 text-sm font-medium transition-all active:scale-90 ${liked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'}`}>
-          {liked ? '❤️' : '🤍'} {likesCount}
+          {liked
+            ? <HeartIconSolid className="w-5 h-5" />
+            : <HeartIcon className="w-5 h-5" />
+          }
+          {likesCount}
         </button>
         <button onClick={() => navigate(`/posts/${post._id}`)}
           className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-blue-500 transition-colors">
-          💬 {post.comments?.filter(c => !c.isToxic).length || 0}
+          <ChatBubbleOvalLeftIcon className="w-5 h-5" />
+          {post.comments?.filter(c => !c.isToxic).length || 0}
         </button>
         <button onClick={handleShare}
           className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-green-500 transition-colors">
-          🔁 {shares}
+          <ArrowPathRoundedSquareIcon className="w-5 h-5" />
+          {shares}
         </button>
       </div>
 

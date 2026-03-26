@@ -45,7 +45,7 @@ export default function PostDetailPage() {
       const { data: toxicData } = await aiAPI.detectToxicity({ text: comment });
       isToxic = toxicData.data.isToxic && toxicData.data.confidence > 0.7;
       if (isToxic) {
-        toast.error('⚠️ Your comment was flagged as harmful. Please keep it respectful.');
+        toast.error('Your comment was flagged as harmful. Please keep it respectful.');
         setSubmitting(false);
         return;
       }

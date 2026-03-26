@@ -29,8 +29,13 @@ api.interceptors.response.use(
     console.error("API ERROR:", error.response?.data || error.message)
 
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+      // Skip redirect for auth endpoints (login, signup, etc.) to avoid infinite loop
+      const requestUrl = error.config?.url || ''
+      const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/signup') || requestUrl.includes('/auth/verify')
+      if (!isAuthRequest) {
+        localStorage.removeItem('token')
+        window.location.href = '/login'
+      }
     }
 
     return Promise.reject(error)

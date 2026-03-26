@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { postAPI } from '../../services/api.js';
 import PostCard from '../../components/posts/PostCard.jsx';
+import { HashtagIcon } from '@heroicons/react/24/outline';
 
 export default function HashtagPage() {
   const { tag } = useParams();
@@ -34,7 +35,9 @@ export default function HashtagPage() {
         <div className="text-center py-8 text-gray-500">Loading...</div>
       ) : posts.length === 0 ? (
         <div className="text-center py-16">
-          <div className="text-5xl mb-4">#️⃣</div>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-100 to-purple-100 flex items-center justify-center">
+            <HashtagIcon className="w-8 h-8 text-primary-500" />
+          </div>
           <p className="text-gray-500">No posts with #{tag} yet</p>
         </div>
       ) : (

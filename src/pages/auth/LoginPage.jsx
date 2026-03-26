@@ -3,6 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { authAPI } from '../../services/api.js';
 import toast from 'react-hot-toast';
+import {
+  CameraIcon, HeartIcon, ChatBubbleLeftRightIcon, SparklesIcon,
+} from '@heroicons/react/24/outline';
+
+const features = [
+  { icon: CameraIcon, label: 'Share Moments', color: 'text-amber-300' },
+  { icon: HeartIcon, label: 'Show Love', color: 'text-pink-300' },
+  { icon: ChatBubbleLeftRightIcon, label: 'Connect', color: 'text-sky-300' },
+  { icon: SparklesIcon, label: 'AI Powered', color: 'text-violet-300' },
+];
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -25,15 +35,19 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left - Gradient banner */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-primary-500 to-secondary-500 flex-col justify-center items-center p-12 text-white">
-        <h1 className="text-5xl font-bold mb-4">SocialMERN</h1>
-        <p className="text-xl text-white/80 text-center max-w-sm">
+      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 flex-col justify-center items-center p-12 text-white relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-white/5 rounded-full blur-xl" />
+        <div className="absolute bottom-20 -right-20 w-80 h-80 bg-white/5 rounded-full blur-xl" />
+
+        <h1 className="text-5xl font-bold mb-4 relative z-10">SocialMERN</h1>
+        <p className="text-xl text-white/80 text-center max-w-sm relative z-10">
           Connect, share, and discover with people around the world.
         </p>
-        <div className="mt-12 grid grid-cols-2 gap-4 text-center">
-          {[['📸', 'Share Moments'], ['❤️', 'Show Love'], ['💬', 'Connect'], ['🤖', 'AI Powered']].map(([emoji, label]) => (
-            <div key={label} className="bg-white/10 rounded-2xl p-4">
-              <div className="text-3xl mb-1">{emoji}</div>
+        <div className="mt-12 grid grid-cols-2 gap-4 text-center relative z-10">
+          {features.map(({ icon: Icon, label, color }) => (
+            <div key={label} className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 hover:bg-white/20 transition-all duration-300 group">
+              <Icon className={`w-8 h-8 mx-auto mb-2 ${color} group-hover:scale-110 transition-transform duration-200`} />
               <div className="text-sm font-medium">{label}</div>
             </div>
           ))}

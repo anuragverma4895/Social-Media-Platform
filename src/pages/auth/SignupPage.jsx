@@ -24,9 +24,11 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-primary-500 to-secondary-500 flex-col justify-center items-center p-12 text-white">
-        <h1 className="text-5xl font-bold mb-4">Join SocialMERN</h1>
-        <p className="text-xl text-white/80 text-center max-w-sm">
+      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 flex-col justify-center items-center p-12 text-white relative overflow-hidden">
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-white/5 rounded-full blur-xl" />
+        <div className="absolute bottom-20 -right-20 w-80 h-80 bg-white/5 rounded-full blur-xl" />
+        <h1 className="text-5xl font-bold mb-4 relative z-10">Join SocialMERN</h1>
+        <p className="text-xl text-white/80 text-center max-w-sm relative z-10">
           Create your account and start sharing your world with others.
         </p>
       </div>

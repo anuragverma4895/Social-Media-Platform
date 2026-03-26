@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { userAPI, postAPI } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
-import { UserPlusIcon, UserMinusIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { UserPlusIcon, UserMinusIcon, PencilSquareIcon, CameraIcon } from '@heroicons/react/24/outline';
 import PostCard from '../../components/posts/PostCard.jsx';
 
 export default function ProfilePage() {
@@ -172,7 +172,9 @@ export default function ProfilePage() {
             <div className="text-center py-8 text-gray-500">Loading posts...</div>
           ) : posts.length === 0 ? (
             <div className="text-center py-16 text-gray-500">
-              <div className="text-5xl mb-3">📷</div>
+              <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary-100 to-purple-100 flex items-center justify-center">
+                <CameraIcon className="w-8 h-8 text-primary-500" />
+              </div>
               <p className="font-semibold text-gray-700 mb-1">No posts yet</p>
               {isOwnProfile && <Link to="/create" className="btn-primary mt-4 inline-block">Create your first post</Link>}
             </div>

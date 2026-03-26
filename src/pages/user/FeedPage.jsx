@@ -3,6 +3,7 @@ import { postAPI, userAPI } from '../../services/api.js';
 import PostCard from '../../components/posts/PostCard.jsx';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 export default function FeedPage() {
   const { user } = useAuth();
@@ -62,7 +63,9 @@ export default function FeedPage() {
           </div>
         ) : posts.length === 0 ? (
           <div className="card p-12 text-center">
-            <div className="text-6xl mb-4">🌱</div>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-100 to-purple-100 flex items-center justify-center">
+              <SparklesIcon className="w-8 h-8 text-primary-500" />
+            </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Your feed is empty</h3>
             <p className="text-gray-500 mb-6">Follow some users or create your first post!</p>
             <div className="flex gap-3 justify-center">

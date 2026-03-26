@@ -3,11 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { authAPI } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
+import { EnvelopeIcon } from '@heroicons/react/24/outline';
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { loginWithToken } = useAuth();
   const { userId, email } = location.state || {};
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -49,10 +50,10 @@ export default function VerifyEmailPage() {
     setLoading(true);
     try {
       const { data } = await authAPI.verifyEmail({ userId, otp: otpString });
-      localStorage.setItem('token', data.data.token);
-      toast.success('Email verified! Welcome 🎉');
+      // Properly set auth state via context
+      loginWithToken(data.data.user, data.data.token);
+      toast.success('Email verified! Welcome aboard!');
       navigate('/feed');
-      window.location.reload();
     } catch (error) {
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {
@@ -75,8 +76,8 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-purple-50 p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 text-center">
-        <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-3xl">📧</span>
+        <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <EnvelopeIcon className="w-8 h-8 text-primary-500" />
         </div>
 
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>

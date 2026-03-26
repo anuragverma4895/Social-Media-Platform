@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = await authAPI.login(credentials)
       localStorage.setItem('token', data.data.token)
       dispatch({ type: 'LOGIN_SUCCESS', payload: data.data })
-      toast.success('Welcome back! 👋')
+      toast.success('Welcome back!')
       return { success: true }
     } catch (error) {
       const message = error.response?.data?.message || 'Login failed'
@@ -52,10 +52,15 @@ export const AuthProvider = ({ children }) => {
     }
   }, [])
 
+  const loginWithToken = useCallback((userData, token) => {
+    localStorage.setItem('token', token)
+    dispatch({ type: 'LOGIN_SUCCESS', payload: { user: userData, token } })
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem('token')
     dispatch({ type: 'LOGOUT' })
-    toast.success('Logged out!')
+    toast.success('Logged out successfully')
   }, [])
 
   const updateUser = useCallback((userData) => {
@@ -63,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ ...state, login, loginWithToken, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
