@@ -4,11 +4,13 @@ import { useSocket } from '../../context/SocketContext.jsx'
 import {
   HomeIcon, GlobeAltIcon, PlusCircleIcon, BellIcon,
   MagnifyingGlassIcon, ArrowRightStartOnRectangleIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline'
 
 const navItems = [
   { to: '/feed',          label: 'Home',          icon: HomeIcon },
   { to: '/explore',       label: 'Explore',       icon: GlobeAltIcon },
+  { to: '/messages',      label: 'Messages',      icon: ChatBubbleLeftRightIcon, badge: true },
   { to: '/create',        label: 'Create Post',   icon: PlusCircleIcon },
   { to: '/notifications', label: 'Notifications', icon: BellIcon, badge: true },
   { to: '/search',        label: 'Search',        icon: MagnifyingGlassIcon },
@@ -39,13 +41,16 @@ export default function Layout() {
                 ? 'bg-gradient-to-r from-primary-50 to-purple-50 text-primary-600 shadow-sm'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`
             }>
-              <Icon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+              <div className="relative">
+                <Icon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
+                {badge && (
+                  (to === '/messages' && notifications.some(n => n.type === 'chat')) ||
+                  (to === '/notifications' && notifications.some(n => n.type !== 'chat'))
+                ) && (
+                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full animate-pulse shadow-sm" />
+                )}
+              </div>
               <span>{label}</span>
-              {badge && notifications.length > 0 && (
-                <span className="ml-auto bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-sm animate-pulse">
-                  {notifications.length > 9 ? '9+' : notifications.length}
-                </span>
-              )}
             </NavLink>
           ))}
 

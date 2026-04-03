@@ -106,10 +106,27 @@ const searchUsers = asyncHandler(async (req, res) => {
 // GET /api/users/suggestions
 const getSuggestedUsers = asyncHandler(async (req, res) => {
   const currentUser = await User.findById(req.user._id);
+  
+  // Suggest users who are either:
+  // 1. Followed by the user (connections)
+  // 2. Following the user
+  // 3. Random active users (limited fallback)
+  
+  const suggestedIds = [...currentUser.following, ...currentUser.followers];
+  
   const users = await User.find({
-    _id: { $nin: [...currentUser.following, currentUser._id] },
-    isActive: true, isBanned: false, role: 'user',
-  }).select('username name profilePicture bio followers').limit(10);
+    _id: { $ne: currentUser._id },
+    isActive: true, 
+    isBanned: false, 
+    role: 'user',
+  })
+    .select('username name profilePicture bio followers')
+    .sort({
+      // Prioritize connections first (people in our following/followers lists)
+      _id: { $in: suggestedIds } ? -1 : 1 
+    })
+    .limit(15);
+
   res.json({ success: true, data: users });
 });
 

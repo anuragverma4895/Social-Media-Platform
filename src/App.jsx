@@ -19,6 +19,7 @@ import NotificationsPage from './pages/user/NotificationsPage.jsx'
 import SearchPage        from './pages/user/SearchPage.jsx'
 import HashtagPage       from './pages/user/HashtagPage.jsx'
 import SettingsPage      from './pages/user/SettingsPage.jsx'
+import ChatPage          from './pages/user/ChatPage.jsx'
 
 // Admin pages
 import AdminLoginPage     from './pages/admin/AdminLoginPage.jsx'
@@ -75,6 +76,8 @@ function AppRoutes() {
         <Route path="hashtag/:tag"   element={<HashtagPage />} />
         <Route path="settings"       element={<SettingsPage />} />
         <Route path="posts/:postId"  element={<PostDetailPage />} />
+        <Route path="messages"       element={<ChatPage />} />
+        <Route path="messages/:conversationId" element={<ChatPage />} />
         <Route path=":username"      element={<ProfilePage />} />
       </Route>
 

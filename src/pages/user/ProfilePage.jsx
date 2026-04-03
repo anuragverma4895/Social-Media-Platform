@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { userAPI, postAPI } from '../../services/api.js';
+import { chatAPI } from '../../services/chatAPI';
 import { useAuth } from '../../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
-import { UserPlusIcon, UserMinusIcon, PencilSquareIcon, CameraIcon } from '@heroicons/react/24/outline';
+import { UserPlusIcon, UserMinusIcon, PencilSquareIcon, CameraIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import PostCard from '../../components/posts/PostCard.jsx';
 
 export default function ProfilePage() {
@@ -71,6 +72,15 @@ export default function ProfilePage() {
     }
   };
 
+  const handleMessage = async () => {
+    try {
+      const { data } = await chatAPI.getOrCreateConversation(profile._id);
+      navigate(`/messages/${data.data._id}`);
+    } catch (error) {
+      toast.error('Failed to start conversation');
+    }
+  };
+
   const handleDeletePost = (postId) => {
     setPosts((prev) => prev.filter(p => p._id !== postId));
   };
@@ -113,16 +123,25 @@ export default function ProfilePage() {
                   <PencilSquareIcon className="w-4 h-4" /> Edit Profile
                 </Link>
               ) : (
-                <button
-                  onClick={handleFollow}
-                  disabled={followLoading}
-                  className={`flex items-center gap-1.5 px-5 py-1.5 rounded-xl font-semibold text-sm transition-all ${
-                    isFollowing ? 'btn-secondary' : 'btn-primary'
-                  }`}
-                >
-                  {isFollowing ? <UserMinusIcon className="w-4 h-4" /> : <UserPlusIcon className="w-4 h-4" />}
-                  {isFollowing ? 'Unfollow' : 'Follow'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleFollow}
+                    disabled={followLoading}
+                    className={`flex items-center gap-1.5 px-5 py-1.5 rounded-xl font-semibold text-sm transition-all ${
+                      isFollowing ? 'btn-secondary' : 'btn-primary'
+                    }`}
+                  >
+                    {isFollowing ? <UserMinusIcon className="w-4 h-4" /> : <UserPlusIcon className="w-4 h-4" />}
+                    {isFollowing ? 'Unfollow' : 'Follow'}
+                  </button>
+                  <button
+                    onClick={handleMessage}
+                    className="flex items-center gap-1.5 px-5 py-1.5 rounded-xl font-semibold text-sm btn-secondary"
+                  >
+                    <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                    Message
+                  </button>
+                </div>
               )}
             </div>
 

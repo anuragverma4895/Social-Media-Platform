@@ -19,6 +19,16 @@ export const SocketProvider = ({ children }) => {
       socketRef.current.on('new_notification', (notif) => {
         setNotifications((prev) => [notif, ...prev])
       })
+      socketRef.current.on('initial_online_users', (users) => {
+        setOnlineUsers(users)
+      })
+      socketRef.current.on('new_chat_notification', (data) => {
+        // Only add to notifications if user is NOT on the chat page of this conversation
+        if (!window.location.pathname.includes(data.conversationId)) {
+          setNotifications((prev) => [{ ...data, type: 'chat' }, ...prev])
+        }
+      })
+
       socketRef.current.on('user_status_change', ({ userId, status }) => {
         setOnlineUsers((prev) =>
           status === 'online' ? [...new Set([...prev, userId])] : prev.filter(id => id !== userId)

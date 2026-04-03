@@ -3,7 +3,10 @@ import { postAPI, userAPI } from '../../services/api.js';
 import PostCard from '../../components/posts/PostCard.jsx';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChatBubbleLeftRightIcon, UserPlusIcon } from '@heroicons/react/24/outline';
+import { chatAPI } from '../../services/chatAPI';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function FeedPage() {
   const { user } = useAuth();
@@ -12,6 +15,7 @@ export default function FeedPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
+  const navigate = useNavigate();
 
   const fetchFeed = useCallback(async (pageNum = 1) => {
     try {
@@ -43,6 +47,25 @@ export default function FeedPage() {
     const nextPage = page + 1;
     setPage(nextPage);
     fetchFeed(nextPage);
+  };
+
+  const handleFollow = async (userId) => {
+    try {
+      await userAPI.followUnfollow(userId);
+      setSuggestions(prev => prev.filter(u => u._id !== userId));
+      toast.success('Following user');
+    } catch (error) {
+      toast.error('Failed to follow');
+    }
+  };
+
+  const handleMessage = async (userId) => {
+    try {
+      const { data } = await chatAPI.getOrCreateConversation(userId);
+      navigate(`/messages/${data.data._id}`);
+    } catch (error) {
+      toast.error('Failed to start chat');
+    }
   };
 
   return (
@@ -105,20 +128,47 @@ export default function FeedPage() {
           </Link>
 
           {suggestions.length > 0 && (
-            <div className="card p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Suggested for You</h3>
-              <div className="space-y-3">
+            <div className="bg-white/70 backdrop-blur-xl border border-white/40 rounded-3xl p-6 shadow-xl shadow-gray-200/50">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-gray-900 tracking-tight">Suggested for You</h3>
+                <Link to="/explore" className="text-xs font-bold text-primary-600 hover:text-primary-700 transition-colors uppercase tracking-wider">See all</Link>
+              </div>
+              <div className="space-y-4">
                 {suggestions.map((suggestedUser) => (
-                  <Link key={suggestedUser._id} to={`/${suggestedUser.username}`} className="flex items-center gap-3 hover:bg-gray-50 rounded-lg p-2 -mx-2 transition-colors">
-                    <img
-                      src={suggestedUser.profilePicture || `https://ui-avatars.com/api/?name=${suggestedUser.username}&background=667eea&color=fff`}
-                      alt={suggestedUser.username} className="w-9 h-9 rounded-full object-cover"
-                    />
+                  <div key={suggestedUser._id} className="group relative flex items-center gap-3 p-2 -mx-2 rounded-2xl hover:bg-white hover:shadow-sm transition-all duration-300">
+                    <Link to={`/${suggestedUser.username}`} className="relative shrink-0">
+                      <img
+                        src={suggestedUser.profilePicture || `https://ui-avatars.com/api/?name=${suggestedUser.username}&background=667eea&color=fff`}
+                        alt={suggestedUser.username} 
+                        className="w-11 h-11 rounded-2xl object-cover ring-2 ring-gray-50 group-hover:ring-primary-100 transition-all shadow-sm"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      </div>
+                    </Link>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{suggestedUser.name || suggestedUser.username}</p>
-                      <p className="text-xs text-gray-500 truncate">@{suggestedUser.username}</p>
+                      <Link to={`/${suggestedUser.username}`} className="block">
+                        <p className="text-sm font-bold text-gray-900 truncate group-hover:text-primary-600 transition-colors">{suggestedUser.name || suggestedUser.username}</p>
+                        <p className="text-[11px] text-gray-400 font-medium truncate">@{suggestedUser.username}</p>
+                      </Link>
                     </div>
-                  </Link>
+                    <div className="flex gap-1.5 ml-auto">
+                      <button 
+                        onClick={() => handleMessage(suggestedUser._id)}
+                        className="p-1.5 bg-gray-100 hover:bg-primary-50 text-gray-600 hover:text-primary-600 rounded-xl transition-all"
+                        title="Message"
+                      >
+                        <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => handleFollow(suggestedUser._id)}
+                        className="p-1.5 bg-gray-900 hover:bg-primary-600 text-white rounded-xl transition-all hover:scale-105 active:scale-95 shadow-sm"
+                        title="Follow"
+                      >
+                        <UserPlusIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
