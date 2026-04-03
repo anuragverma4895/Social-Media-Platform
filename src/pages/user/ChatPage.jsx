@@ -13,6 +13,7 @@ export default function ChatPage() {
   const { socket, onlineUsers, notifications, setNotifications } = useSocket();
   const navigate = useNavigate();
   const scrollRef = useRef();
+  const fileInputRef = useRef();
 
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -21,6 +22,9 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [activeChatLoading, setActiveChatLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchConversations();
@@ -117,21 +121,52 @@ export default function ChatPage() {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !activeChat) return;
+    if ((!newMessage.trim() && !selectedFile) || !activeChat || uploading) return;
+ 
+     const recipient = activeChat.participants.find(p => p._id !== user._id);
+     
+     try {
+      setUploading(true);
+      let messageData;
 
-    const recipient = activeChat.participants.find(p => p._id !== user._id);
-    
-    try {
-      const { data } = await chatAPI.sendMessage(recipient._id, newMessage);
-      const messageData = {
-        ...data.data,
-        recipientId: recipient._id
-      };
-      
-      socket.emit('send_message', messageData);
-      setNewMessage('');
-    } catch (error) {
-      toast.error('Failed to send message');
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('recipientId', recipient._id);
+        formData.append('content', newMessage);
+        formData.append('media', selectedFile);
+
+        const { data } = await chatAPI.sendMessage(formData);
+        messageData = {
+          ...data.data,
+          recipientId: recipient._id
+        };
+      } else {
+        const { data } = await chatAPI.sendMessage(recipient._id, newMessage);
+        messageData = {
+          ...data.data,
+          recipientId: recipient._id
+        };
+      }
+       
+       socket.emit('send_message', messageData);
+       setNewMessage('');
+       setSelectedFile(null);
+       setFilePreview(null);
+     } catch (error) {
+       toast.error('Failed to send message');
+     } finally {
+       setUploading(false);
+     }
+   };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) return toast.error('File too large (max 50MB)');
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setFilePreview(reader.result);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -211,7 +246,7 @@ export default function ChatPage() {
                       )}
                     </div>
                     <p className={`text-xs truncate ${isActive ? 'text-gray-600' : 'text-gray-400'}`}>
-                      {chat.lastMessage?.content || 'No messages yet'}
+                      {chat.lastMessage?.image ? '📷 Image' : chat.lastMessage?.video ? '🎥 Video' : chat.lastMessage?.content || 'No messages yet'}
                     </p>
                   </div>
                 </button>
@@ -312,7 +347,22 @@ export default function ChatPage() {
                         ? 'bg-gradient-to-br from-primary-600 to-primary-500 text-white rounded-tr-none' 
                         : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'
                     }`}>
-                      {msg.content}
+                      {msg.image && (
+                        <img 
+                          src={msg.image} 
+                          alt="chat attachment" 
+                          className="rounded-2xl mb-2 max-h-60 w-full object-cover cursor-pointer hover:opacity-95 transition-opacity" 
+                          onClick={() => window.open(msg.image, '_blank')}
+                        />
+                      )}
+                      {msg.video && (
+                        <video 
+                          src={msg.video} 
+                          controls 
+                          className="rounded-2xl mb-2 max-h-60 w-full object-cover" 
+                        />
+                      )}
+                      {msg.content && <p className="leading-relaxed">{msg.content}</p>}
                       <p className={`text-[10px] mt-1 text-right opacity-60 font-medium ${isOwn ? 'text-white' : 'text-gray-400'}`}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
@@ -324,27 +374,54 @@ export default function ChatPage() {
             </div>
 
             {/* Input Area */}
-            <div className="p-6 bg-white border-t border-gray-100">
+            <div className="p-4 md:p-6 bg-white border-t border-gray-100">
+              {filePreview && (
+                <div className="mb-4 relative w-20 h-20 bg-gray-100 rounded-2xl overflow-hidden group">
+                  {selectedFile?.type.startsWith('video') ? (
+                    <video src={filePreview} className="w-full h-full object-cover" />
+                  ) : (
+                    <img src={filePreview} alt="preview" className="w-full h-full object-cover" />
+                  )}
+                  <button 
+                    onClick={() => { setSelectedFile(null); setFilePreview(null); }}
+                    className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <span className="text-white text-xs font-bold">Clear</span>
+                  </button>
+                </div>
+              )}
+
               <form onSubmit={handleSendMessage} className="flex items-center gap-3 bg-gray-50 rounded-2xl p-2 px-4 focus-within:ring-2 focus-within:ring-primary-100 transition-all">
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/*,video/*"
+                  onChange={handleFileChange}
+                />
                 <button type="button" className="p-2 text-gray-400 hover:text-primary-500 transition-colors">
                   <FaceSmileIcon className="w-5 h-5" />
                 </button>
-                <button type="button" className="p-2 text-gray-400 hover:text-primary-500 transition-colors">
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`p-2 transition-colors ${selectedFile ? 'text-primary-600' : 'text-gray-400 hover:text-primary-500'}`}
+                >
                   <PhotoIcon className="w-5 h-5" />
                 </button>
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
+                  placeholder={selectedFile ? "Add a caption..." : "Type a message..."}
                   className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2"
                 />
                 <button
                   type="submit"
-                  disabled={!newMessage.trim()}
+                  disabled={(!newMessage.trim() && !selectedFile) || uploading}
                   className="p-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:bg-gray-300 text-white rounded-xl shadow-lg shadow-primary-200 transition-all hover:scale-105 active:scale-95"
                 >
-                  <PaperAirplaneIcon className="w-5 h-5 -rotate-45" />
+                  <PaperAirplaneIcon className={`w-5 h-5 -rotate-45 ${uploading ? 'animate-pulse' : ''}`} />
                 </button>
               </form>
             </div>

@@ -25,7 +25,9 @@ exports.sendMessage = async (req, res) => {
     const message = await Message.create({
       conversationId: conversation._id,
       sender: senderId,
-      content
+      content: content || '',
+      image: req.file && !req.file.mimetype.startsWith('video') ? req.file.path : '',
+      video: req.file && req.file.mimetype.startsWith('video') ? req.file.path : '',
     });
 
     // Update last message in conversation

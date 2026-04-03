@@ -19,6 +19,11 @@ api.interceptors.request.use((config) => {
 export const chatAPI = {
   getConversations: () => api.get('/chat/conversations'),
   getMessages: (conversationId) => api.get(`/chat/messages/${conversationId}`),
-  sendMessage: (recipientId, content) => api.post('/chat/send', { recipientId, content }),
+  sendMessage: (recipientId, content) => {
+    if (recipientId instanceof FormData) {
+      return api.post('/chat/send', recipientId);
+    }
+    return api.post('/chat/send', { recipientId, content });
+  },
   getOrCreateConversation: (userId) => api.get(`/chat/getOrCreate/${userId}`),
 };

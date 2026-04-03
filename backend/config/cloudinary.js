@@ -49,6 +49,24 @@ const profileStorage = new CloudinaryStorage({
 });
 
 // ─────────────────────────────────────────────
+// ✅ Chat Media Storage
+const chatStorage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const isVideo = file.mimetype.startsWith('video');
+    const params = {
+      folder: 'socialmern/chats',
+      resource_type: isVideo ? 'video' : 'image',
+    };
+    if (!isVideo) {
+      params.format = file.mimetype.split('/')[1];
+      params.transformation = [{ width: 1200, crop: 'limit', quality: 'auto' }];
+    }
+    return params;
+  },
+});
+
+// ─────────────────────────────────────────────
 // ✅ Upload middleware
 const uploadPostImage = multer({
   storage: postStorage,
@@ -58,6 +76,11 @@ const uploadPostImage = multer({
 const uploadProfileImage = multer({
   storage: profileStorage,
   limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+const uploadChatMedia = multer({
+  storage: chatStorage,
+  limits: { fileSize: 50 * 1024 * 1024 },
 });
 
 // ─────────────────────────────────────────────
@@ -86,5 +109,6 @@ module.exports = {
   cloudinary,
   uploadPostImage,
   uploadProfileImage,
+  uploadChatMedia,
   deleteFromCloudinary,
 };

@@ -13,8 +13,16 @@ const messageSchema = new mongoose.Schema({
   },
   content: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    required: function() { return !this.image && !this.video; }
+  },
+  image: {
+    type: String,
+    default: ''
+  },
+  video: {
+    type: String,
+    default: ''
   },
   isRead: {
     type: Boolean,
