@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 export default function ChatPage() {
   const { conversationId } = useParams();
   const { user } = useAuth();
-  const { socket } = useSocket();
+  const { socket, onlineUsers, notifications, setNotifications } = useSocket();
   const navigate = useNavigate();
   const scrollRef = useRef();
 
@@ -43,12 +43,16 @@ export default function ChatPage() {
           setConversations(data.data);
         }
         fetchMessages(conversationId);
+        // Clear notifications for this conversation
+        if (setNotifications) {
+          setNotifications((prev) => prev.filter(n => n.conversationId !== conversationId));
+        }
       } finally {
         setActiveChatLoading(false);
       }
     };
     loadChat();
-  }, [conversationId]);
+  }, [conversationId, setNotifications]);
 
   // Socket listeners
   useEffect(() => {
@@ -239,11 +243,16 @@ export default function ChatPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {suggestedUsers.slice(0, 6).map((sUser) => (
                     <div key={sUser._id} className="bg-white p-4 rounded-2xl flex items-center gap-3 border border-gray-100/50 hover:shadow-md transition-all group">
-                      <img
-                        src={sUser.profilePicture || `https://ui-avatars.com/api/?name=${sUser.username}&background=667eea&color=fff`}
-                        alt={sUser.username}
-                        className="w-12 h-12 rounded-2xl object-cover ring-2 ring-gray-50 group-hover:ring-primary-100 transition-all"
-                      />
+                      <div className="relative">
+                        <img
+                          src={sUser.profilePicture || `https://ui-avatars.com/api/?name=${sUser.username}&background=667eea&color=fff`}
+                          alt={sUser.username}
+                          className="w-12 h-12 rounded-2xl object-cover ring-2 ring-gray-50 group-hover:ring-primary-100 transition-all"
+                        />
+                        <div className={`absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm`}>
+                          <div className={`w-2 h-2 ${onlineUsers.includes(sUser._id) ? 'bg-green-500' : 'bg-gray-300'} rounded-full`} />
+                        </div>
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-gray-900 truncate group-hover:text-primary-600 transition-colors uppercase tracking-tight">{sUser.name || sUser.username}</p>
                         <p className="text-xs text-gray-400 font-medium truncate">@{sUser.username}</p>
@@ -282,7 +291,9 @@ export default function ChatPage() {
                 />
                 <div>
                   <p className="font-bold text-gray-900 leading-tight">{getChatPartner(activeChat)?.name || getChatPartner(activeChat)?.username || 'Chat'}</p>
-                  <p className="text-xs text-green-500 font-medium">Online</p>
+                  <p className={`text-xs font-medium ${onlineUsers.includes(getChatPartner(activeChat)?._id) ? 'text-green-500' : 'text-gray-400'}`}>
+                    {onlineUsers.includes(getChatPartner(activeChat)?._id) ? 'Online' : 'Offline'}
+                  </p>
                 </div>
               </div>
               <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-xl transition-all">

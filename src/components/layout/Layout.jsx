@@ -44,10 +44,12 @@ export default function Layout() {
               <div className="relative">
                 <Icon className="w-5 h-5 transition-transform duration-200 group-hover:scale-110" />
                 {badge && (
-                  (to === '/messages' && notifications.some(n => n.type === 'chat')) ||
-                  (to === '/notifications' && notifications.some(n => n.type !== 'chat'))
+                  (to === '/messages' && notifications.filter(n => n.type === 'chat').length > 0) ||
+                  (to === '/notifications' && notifications.filter(n => n.type !== 'chat').length > 0)
                 ) && (
-                  <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-red-500 border-2 border-white rounded-full animate-pulse shadow-sm" />
+                  <span className={`absolute -top-1.5 -right-2 ${to === '/messages' ? 'min-w-[18px] h-[18px] px-1' : 'w-3.5 h-3.5'} bg-red-500 border-2 border-white rounded-full flex items-center justify-center text-[10px] text-white font-bold animate-pulse shadow-sm`}>
+                    {to === '/messages' ? (notifications.filter(n => n.type === 'chat').length > 9 ? '9+' : notifications.filter(n => n.type === 'chat').length) : ''}
+                  </span>
                 )}
               </div>
               <span>{label}</span>

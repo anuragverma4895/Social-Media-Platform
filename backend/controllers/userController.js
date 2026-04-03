@@ -121,10 +121,7 @@ const getSuggestedUsers = asyncHandler(async (req, res) => {
     role: 'user',
   })
     .select('username name profilePicture bio followers')
-    .sort({
-      // Prioritize connections first (people in our following/followers lists)
-      _id: { $in: suggestedIds } ? -1 : 1 
-    })
+    .sort({ followers: -1 })
     .limit(15);
 
   res.json({ success: true, data: users });
