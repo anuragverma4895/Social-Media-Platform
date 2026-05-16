@@ -1,12 +1,16 @@
 import axios from 'axios'
 
-// ================= BASE URL =================
-// Auto switch between local & production
-const API_URL =
+const trimTrailingSlash = (value = '') => value.replace(/\/+$/, '')
+
+const BACKEND_URL = trimTrailingSlash(import.meta.env.VITE_BACKEND_URL || '')
+const API_URL = trimTrailingSlash(
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.MODE === 'development'
-    ? 'http://localhost:5000/api'
-    : 'https://social-media-tu4w.onrender.com/api')
+    (BACKEND_URL
+      ? `${BACKEND_URL}/api`
+      : import.meta.env.DEV
+        ? 'http://localhost:5000/api'
+        : '/api')
+)
 
 // ================= AXIOS INSTANCE =================
 const api = axios.create({

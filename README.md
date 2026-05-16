@@ -1,73 +1,56 @@
-# Social-Media-Platform
+# Social Media Platform
 
-# 🚀 SocialMERN — Full Stack Social Media Platform
+MERN social media app with a Vite React frontend, Express/MongoDB backend, Cloudinary uploads, email OTP, JWT auth, admin panel, and Socket.IO realtime features.
 
-A production-ready social media platform built with MERN stack + Vite + AI features.
+## Project Structure
 
-## 🗂️ Project Structure
-
-```
-socialmern/
-├── backend/              ← Node.js + Express API
-│   ├── config/           ← DB & Cloudinary config
-│   ├── controllers/      ← Route logic
-│   ├── middleware/       ← Auth, error, validation
-│   ├── models/           ← MongoDB schemas
-│   ├── routes/           ← API routes
-│   ├── utils/            ← Email, JWT, Socket
-│   ├── server.js
-│   └── package.json
-│
-├── public/               ← Static assets
-├── src/                  ← React frontend
-│   ├── components/       ← Reusable UI components
-│   ├── context/          ← Auth + Socket context
-│   ├── pages/            ← Auth, User, Admin pages
-│   └── services/         ← Axios API client
-│
-├── index.html            ← Vite entry point
-├── package.json          ← Frontend dependencies
-├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── SETUP.md              ← Local setup guide
-├── DEPLOYMENT.md         ← Deploy to Vercel + Render
-└── CHECKLIST.md          ← Pre-deploy checklist
+```text
+Social-Media-Platform/
+  backend/        Node.js + Express API
+  frontend/       React + Vite frontend
+  render.yaml     Render Blueprint for both services
 ```
 
-## ⚡ Features
-- JWT Auth + Email OTP Verification
-- Follow/Unfollow, Feed, Explore
-- Post with Image Upload (Cloudinary)
-- Like, Comment, Share
-- Real-time Notifications (Socket.io)
-- 🤖 Smart Hashtag Generator
-- 🤖 Toxic Comment Detection
-- 🛡️ Admin Panel (ban users, moderate posts)
-
-## 🚀 Quick Start
+## Local Setup
 
 ```bash
-# 1. Install frontend deps
+# Frontend
+cd frontend
 npm install
+npm run dev
 
-# 2. Install backend deps
-cd backend && npm install && cd ..
-
-# 3. Setup .env files (see SETUP.md)
-
-# 4. Run
-cd backend && npm run dev   # Terminal 1
-npm run dev                 # Terminal 2 (root)
+# Backend, in another terminal
+cd backend
+npm install
+npm run dev
 ```
 
-See **SETUP.md** for detailed instructions.
-See **DEPLOYMENT.md** for Vercel + Render deployment.
+Create `frontend/.env` from `frontend/.env.example` and `backend/.env` from `backend/.env.example`.
 
-## 🛡️ Default Admin Access
+## Render Deployment
 
-To access the admin panel at `/admin/login`, use the following default credentials:
+1. Push this repo to GitHub.
+2. In Render, create a new Blueprint and select this repository.
+3. Render will read `render.yaml` and create:
+   - `social-media-platform-backend`
+   - `social-media-platform-frontend`
+4. Fill the required backend environment variables when Render asks for them.
+5. Deploy the Blueprint.
 
-- **Email:** `admin@socialmern.com`
-- **Password:** `AdminPassword123!`
-- **Admin Secret Key:** `admin_secret_key_12345` *(This must match the `ADMIN_SECRET_KEY` in your backend `.env` file)*
+The frontend receives the backend URL from the backend service's `RENDER_EXTERNAL_URL`, then builds with `VITE_BACKEND_URL`. The backend allows local origins and Render `*.onrender.com` origins by default. Add custom domains to `CORS_ORIGINS` later if needed.
+
+## Required Backend Environment Variables
+
+```text
+MONGO_URI
+ADMIN_SECRET_KEY
+CLOUDINARY_CLOUD_NAME
+CLOUDINARY_API_KEY
+CLOUDINARY_API_SECRET
+EMAIL_HOST
+EMAIL_PORT
+EMAIL_USER
+EMAIL_PASS
+GEMINI_API_KEY
+OPENAI_API_KEY
+```

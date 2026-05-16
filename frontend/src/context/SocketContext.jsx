@@ -3,7 +3,15 @@ import { io } from 'socket.io-client'
 import { useAuth } from './AuthContext'
 
 const SocketContext = createContext()
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+
+const trimTrailingSlash = (value = '') => value.replace(/\/+$/, '')
+const backendFromApiUrl = trimTrailingSlash(import.meta.env.VITE_API_URL || '').replace(/\/api$/, '')
+const SOCKET_URL = trimTrailingSlash(
+  import.meta.env.VITE_SOCKET_URL ||
+    import.meta.env.VITE_BACKEND_URL ||
+    backendFromApiUrl ||
+    (import.meta.env.DEV ? 'http://localhost:5000' : '')
+)
 
 export const SocketProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth()

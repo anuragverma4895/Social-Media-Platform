@@ -9,33 +9,63 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 // Routes
-const authRoutes         = require('./routes/authRoutes');
-const userRoutes         = require('./routes/userRoutes');
-const postRoutes         = require('./routes/postRoutes');
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const postRoutes = require('./routes/postRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
-const adminRoutes        = require('./routes/adminRoutes');
-const chatRoutes         = require('./routes/chatRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const { errorHandler } = require('./middleware/errorMiddleware');
-const { setupSocket }  = require('./utils/socket');
+const { setupSocket } = require('./utils/socket');
 
-const app        = express();
+const app = express();
 const httpServer = createServer(app);
 
-// ✅ FIXED CORS (IMPORTANT)
+const parseOrigins = (value = '') =>
+  value
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
 const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5173",
-  process.env.CLIENT_URL,
-  "https://social-media-tu4w.onrender.com"
+  'http://localhost:3000',
+  'http://localhost:5173',
+  ...parseOrigins(process.env.CLIENT_URL),
+  ...parseOrigins(process.env.CORS_ORIGINS),
 ];
+
+const isOriginAllowed = (origin) => {
+  if (!origin) return true;
+
+  const normalizedOrigin = origin.replace(/\/$/, '');
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(normalizedOrigin)) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(normalizedOrigin);
+    return hostname === 'localhost' || hostname.endsWith('.onrender.com');
+  } catch {
+    return false;
+  }
+};
+
+const corsOriginHandler = (origin, callback) => {
+  if (isOriginAllowed(origin)) {
+    return callback(null, true);
+  }
+
+  console.log('Blocked by CORS:', origin);
+  return callback(new Error('Not allowed by CORS'));
+};
 
 // Socket
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsOriginHandler,
     methods: ['GET', 'POST'],
-    credentials: true
+    credentials: true,
   },
 });
 setupSocket(io);
@@ -45,17 +75,8 @@ app.set('io', io);
 app.use(helmet());
 
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("❌ Blocked by CORS:", origin);
-      callback(null, true);
-    }
-  },
-  credentials: true
+  origin: corsOriginHandler,
+  credentials: true,
 }));
 
 if (process.env.NODE_ENV === 'development') {
@@ -94,12 +115,11 @@ const PORT = process.env.PORT || 5000;
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
-    console.log('✅ MongoDB connected');
-    console.log('🔑 Gemini Key Loaded:', process.env.GEMINI_API_KEY ? "YES" : "NO");
+    console.log('MongoDB connected');
+    console.log('Gemini Key Loaded:', process.env.GEMINI_API_KEY ? 'YES' : 'NO');
 
-    httpServer.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌐 Backend URL: http://localhost:${PORT}`);
+    httpServer.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
