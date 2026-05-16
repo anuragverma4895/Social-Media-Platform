@@ -24,10 +24,9 @@ const postStorage = new CloudinaryStorage({
     const isVideo = file.mimetype.startsWith('video');
     const params = {
       folder: 'socialmern/posts',
-      resource_type: isVideo ? 'video' : 'image',
+      resource_type: 'auto',
     };
     if (!isVideo) {
-      params.format = file.mimetype.split('/')[1];
       params.transformation = [
         { width: 1080, height: 1080, crop: 'limit', quality: 'auto' },
       ];
@@ -42,7 +41,6 @@ const profileStorage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
     folder: 'socialmern/profiles',
-    format: file.mimetype.split('/')[1], // FIX
     transformation: [
       { width: 400, height: 400, crop: 'fill', gravity: 'face', quality: 'auto' },
     ],
@@ -57,10 +55,9 @@ const chatStorage = new CloudinaryStorage({
     const isVideo = file.mimetype.startsWith('video');
     const params = {
       folder: 'socialmern/chats',
-      resource_type: isVideo ? 'video' : 'image',
+      resource_type: 'auto',
     };
     if (!isVideo) {
-      params.format = file.mimetype.split('/')[1];
       params.transformation = [{ width: 1200, crop: 'limit', quality: 'auto' }];
     }
     return params;
@@ -98,7 +95,8 @@ const deleteFromCloudinary = async (imageUrl) => {
     
     const resourceType = pathParts[uploadIndex - 1] === 'video' ? 'video' : 'image';
     const publicIdWithExt = pathParts.slice(uploadIndex + 2).join('/');
-    const publicId = publicIdWithExt.substring(0, publicIdWithExt.lastIndexOf('.'));
+    const lastDotIndex = publicIdWithExt.lastIndexOf('.');
+    const publicId = lastDotIndex !== -1 ? publicIdWithExt.substring(0, lastDotIndex) : publicIdWithExt;
 
     await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
   } catch (err) {

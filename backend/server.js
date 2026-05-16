@@ -7,7 +7,7 @@ const path = require('path');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -74,7 +74,10 @@ setupSocket(io);
 app.set('io', io);
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false,
+}));
 
 app.use(cors({
   origin: corsOriginHandler,
