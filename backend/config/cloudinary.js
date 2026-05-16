@@ -24,7 +24,7 @@ const postStorage = new CloudinaryStorage({
     const isVideo = file.mimetype.startsWith('video');
     const params = {
       folder: 'socialmern/posts',
-      resource_type: isVideo ? 'video' : 'image',
+      resource_type: 'auto',
     };
     if (!isVideo) {
       params.transformation = [
@@ -55,7 +55,7 @@ const chatStorage = new CloudinaryStorage({
     const isVideo = file.mimetype.startsWith('video');
     const params = {
       folder: 'socialmern/chats',
-      resource_type: isVideo ? 'video' : 'image',
+      resource_type: 'auto',
     };
     if (!isVideo) {
       params.transformation = [{ width: 1200, crop: 'limit', quality: 'auto' }];
