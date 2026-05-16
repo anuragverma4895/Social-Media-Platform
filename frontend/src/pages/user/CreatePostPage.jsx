@@ -52,55 +52,68 @@ export default function CreatePostPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Create Post</h1>
+    <div className="max-w-2xl mx-auto px-4 py-8 animate-slide-up">
+      <div className="flex items-center gap-3 mb-8">
+        <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500 animate-fade-in tracking-tight">Create Post</h1>
+        <div className="h-1 flex-1 bg-gradient-to-r from-primary-100 to-transparent rounded-full opacity-50"></div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Media upload */}
-        <div className="card p-4">
+        <div className="card-glass p-5 hover-3d border-primary-50">
           {mediaPreview ? (
-            <div className="relative">
+            <div className="relative group">
               {media?.type?.startsWith('video') ? (
-                <video src={mediaPreview} controls className="w-full max-h-80 object-cover rounded-xl" />
+                <video src={mediaPreview} controls className="w-full max-h-[500px] bg-black/5 object-contain rounded-2xl shadow-inner" />
               ) : (
-                <img src={mediaPreview} alt="Preview" className="w-full max-h-80 object-cover rounded-xl" />
+                <img src={mediaPreview} alt="Preview" className="w-full max-h-[500px] object-cover rounded-2xl shadow-inner transition-transform duration-500" />
               )}
+              <div className="absolute inset-0 rounded-2xl ring-4 ring-primary-500/0 group-hover:ring-primary-500/20 transition-all duration-300 pointer-events-none"></div>
               <button type="button" onClick={removeMedia}
-                className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors">
+                className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-red-500 rounded-full p-2 hover:bg-red-500 hover:text-white transition-all duration-300 shadow-lg hover:scale-110 hover:rotate-90">
                 <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
           ) : (
             <button type="button" onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-200 rounded-xl p-12 flex flex-col items-center justify-center text-gray-400 hover:border-primary-300 hover:text-primary-400 transition-colors group">
-              <PhotoIcon className="w-12 h-12 mb-3 group-hover:scale-110 transition-transform" />
-              <p className="font-medium">Click to upload image or video</p>
-              <p className="text-xs mt-1">JPG, PNG, GIF, MP4 (Max 50MB, upto 10 mins)</p>
+              className="w-full border-2 border-dashed border-primary-200/60 rounded-2xl p-14 flex flex-col items-center justify-center text-gray-400 hover:border-primary-400 hover:text-primary-500 hover:bg-primary-50/30 transition-all duration-300 group shadow-sm hover:shadow-md">
+              <div className="bg-primary-100/50 p-4 rounded-full mb-4 group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-300">
+                <PhotoIcon className="w-10 h-10 text-primary-500" />
+              </div>
+              <p className="font-semibold text-lg text-gray-700">Click to upload photo or video</p>
+              <p className="text-sm mt-2 text-gray-400/80 font-medium tracking-wide">JPG, PNG, MP4 • Max 50MB</p>
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleMediaChange} />
         </div>
 
         {/* Caption */}
-        <div className="card p-4">
+        <div className="card-glass p-5 hover-3d border-primary-50">
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="Write a caption... Use #hashtags to categorize your post"
-            className="w-full resize-none text-gray-800 placeholder-gray-400 focus:outline-none text-base leading-relaxed"
-            rows={5}
+            placeholder="Write a captivating caption... Use #hashtags to reach more people ✨"
+            className="w-full resize-none bg-transparent text-gray-800 placeholder-gray-400/70 focus:outline-none text-lg leading-relaxed min-h-[120px]"
             maxLength={2000}
           />
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-            <span className="text-xs text-gray-400">{caption.length}/2000</span>
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100/60">
+            <div className="flex gap-2">
+              <span className="text-xs font-semibold px-2 py-1 bg-gray-100 text-gray-500 rounded-md">Text</span>
+              {hashtags.length > 0 && <span className="text-xs font-semibold px-2 py-1 bg-primary-50 text-primary-600 rounded-md">{hashtags.length} Tags</span>}
+            </div>
+            <span className={`text-xs font-bold transition-colors ${caption.length > 1900 ? 'text-orange-500' : 'text-gray-400'}`}>
+              {caption.length} <span className="opacity-50">/ 2000</span>
+            </span>
           </div>
         </div>
 
         {/* Submit */}
-        <div className="flex gap-3">
-          <button type="button" onClick={() => navigate(-1)} className="btn-secondary flex-1">Cancel</button>
-          <button type="submit" disabled={loading || (!caption && !media)} className="btn-primary flex-1 flex items-center justify-center gap-2">
-            <ArrowUpTrayIcon className="w-4 h-4" />
+        <div className="flex gap-4 pt-2">
+          <button type="button" onClick={() => navigate(-1)} className="btn-secondary flex-1 py-3.5 text-lg hover:shadow-lg">
+            Cancel
+          </button>
+          <button type="submit" disabled={loading || (!caption && !media)} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5 text-lg shadow-[0_10px_20px_-10px_rgba(var(--tw-colors-primary-500),0.5)]">
+            <ArrowUpTrayIcon className={`w-5 h-5 ${loading ? 'animate-bounce' : 'group-hover:-translate-y-1 transition-transform'}`} />
             {loading ? 'Publishing...' : 'Publish Post'}
           </button>
         </div>

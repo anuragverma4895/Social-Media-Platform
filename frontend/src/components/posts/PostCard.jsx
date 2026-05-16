@@ -53,39 +53,43 @@ export default function PostCard({ post, onDelete }) {
   const postVideo = mediaUrl(post.video)
 
   return (
-    <article className="card mb-4 hover:shadow-md transition-all duration-300">
+    <article className="card mb-8 animate-slide-up bg-white/80 backdrop-blur-md shadow-lg border-white/50">
       {/* Header */}
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-transparent via-transparent to-primary-50/30">
         <Link to={`/${post.author?.username}`} className="flex items-center gap-3 group">
           <img
             src={avatarSrc(post.author?.profilePicture, post.author?.username)}
             alt={post.author?.username}
-            className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary-200 transition-all"
+            className="w-12 h-12 rounded-full object-cover ring-2 ring-primary-100 group-hover:ring-primary-400 group-hover:scale-105 transition-all duration-300 shadow-sm"
             onError={(event) => useAvatarFallback(event, post.author?.username)}
           />
           <div>
-            <p className="font-semibold text-sm text-gray-900 group-hover:text-primary-600 transition-colors">
+            <p className="font-bold text-[15px] text-gray-900 group-hover:text-primary-600 transition-colors tracking-tight">
               {post.author?.name || post.author?.username}
             </p>
-            <p className="text-xs text-gray-400">
-              @{post.author?.username} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+            <p className="text-[13px] text-gray-500 font-medium">
+              @{post.author?.username} <span className="mx-1">•</span> {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
             </p>
           </div>
         </Link>
         {(isOwner || isAdmin) && (
-          <button onClick={handleDelete} className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200 group">
-            <TrashIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          <button onClick={handleDelete} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-300 group hover:shadow-inner">
+            <TrashIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </button>
         )}
       </div>
 
       {/* Media */}
       {postVideo ? (
-        <video src={postVideo} controls className="w-full max-h-[600px] bg-black" />
+        <div className="px-4 pb-2">
+          <video src={postVideo} controls className="w-full max-h-[500px] bg-black rounded-2xl shadow-sm hover-3d" />
+        </div>
       ) : postImage ? (
-        <Link to={`/posts/${post._id}`}>
-          <img src={postImage} alt="Post" className="w-full max-h-[600px] object-cover cursor-pointer hover:brightness-95 transition-all duration-200" onError={hideBrokenMedia} />
-        </Link>
+        <div className="px-4 pb-2">
+          <Link to={`/posts/${post._id}`}>
+            <img src={postImage} alt="Post" className="w-full max-h-[500px] object-cover cursor-pointer rounded-2xl shadow-sm hover-3d" onError={hideBrokenMedia} />
+          </Link>
+        </div>
       ) : null}
 
       {/* Actions */}
