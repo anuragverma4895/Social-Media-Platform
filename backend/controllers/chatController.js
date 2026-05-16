@@ -6,8 +6,10 @@ exports.sendMessage = async (req, res) => {
     const { recipientId, content } = req.body;
     const senderId = req.user._id;
 
-    if (!recipientId || !content) {
-      return res.status(400).json({ success: false, message: 'Recipient and content are required' });
+    const trimmedContent = String(content || '').trim();
+
+    if (!recipientId || (!trimmedContent && !req.file)) {
+      return res.status(400).json({ success: false, message: 'Recipient and message or media are required' });
     }
 
     // Find or create conversation
@@ -25,7 +27,7 @@ exports.sendMessage = async (req, res) => {
     const message = await Message.create({
       conversationId: conversation._id,
       sender: senderId,
-      content: content || '',
+      content: trimmedContent,
       image: req.file && !req.file.mimetype.startsWith('video') ? req.file.path : '',
       video: req.file && req.file.mimetype.startsWith('video') ? req.file.path : '',
     });

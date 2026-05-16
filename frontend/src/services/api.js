@@ -126,6 +126,9 @@ export const adminAPI = {
 
 // ================= AI =================
 export const aiAPI = {
+  detectToxicity: (data) =>
+    api.post('/ai/detect-toxicity', data),
+
   suggestCaption: (data) =>
     api.post('/ai/suggest-caption', data),
 
