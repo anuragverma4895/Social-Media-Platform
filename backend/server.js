@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 const rateLimit = require('express-rate-limit');
@@ -105,6 +106,16 @@ app.use('/api/chat', chatRoutes);
 // Health
 app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'API running' });
+});
+
+const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendDistPath));
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  return res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
+    if (err) next();
+  });
 });
 
 // Error
