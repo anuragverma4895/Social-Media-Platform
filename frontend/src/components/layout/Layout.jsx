@@ -114,8 +114,8 @@ export default function Layout() {
       </aside>
 
       {/* Main content wrapper */}
-      <main className="ml-72 flex-1 min-h-screen relative z-10">
-        <div className="max-w-3xl mx-auto py-4">
+      <main className="ml-72 flex-1 min-h-screen relative z-10 w-full">
+        <div className="w-full max-w-[1600px] mx-auto px-4 lg:px-8 py-6">
           <Outlet />
         </div>
       </main>

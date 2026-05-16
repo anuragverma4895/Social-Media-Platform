@@ -70,9 +70,9 @@ export default function FeedPage() {
   };
 
   return (
-    <div className="flex max-w-5xl mx-auto px-4 py-6 gap-6">
+    <div className="flex w-full max-w-6xl mx-auto gap-8">
       {/* Feed */}
-      <div className="flex-1 max-w-2xl">
+      <div className="flex-1 max-w-3xl">
         {loading && page === 1 ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
@@ -114,7 +114,7 @@ export default function FeedPage() {
       </div>
 
       {/* Sidebar - Suggestions */}
-      <div className="hidden lg:block w-72 shrink-0">
+      <div className="hidden xl:block w-80 shrink-0">
         <div className="sticky top-6">
           {/* User info mini card */}
           <Link to={`/${user?.username}`} className="flex items-center gap-3 mb-6 p-4 card hover:shadow-md transition-shadow">
