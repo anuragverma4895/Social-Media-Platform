@@ -21,7 +21,7 @@ const sendVerificationEmail = async (email, username, otp) => {
   const transporter = createTransporter();
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to: email,
     subject: '🔐 Verify Your SocialMERN Account',
     html: `
@@ -52,7 +52,7 @@ const sendPasswordResetEmail = async (email, username, otp) => {
   const transporter = createTransporter();
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to: email,
     subject: '🔑 Reset Your SocialMERN Password',
     html: `
