@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { useSocket } from '../../context/SocketContext.jsx'
+import { avatarSrc, useAvatarFallback } from '../../utils/media.js'
 import {
   HomeIcon, GlobeAltIcon, PlusCircleIcon, BellIcon,
   MagnifyingGlassIcon, ArrowRightStartOnRectangleIcon,
@@ -64,9 +65,10 @@ export default function Layout() {
               : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`
           }>
             <img
-              src={user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.username}&background=667eea&color=fff`}
+              src={avatarSrc(user?.profilePicture, user?.username, 64)}
               alt={user?.username}
               className="w-6 h-6 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary-200 transition-all"
+              onError={(event) => useAvatarFallback(event, user?.username, 64)}
             />
             <span>Profile</span>
           </NavLink>
@@ -76,9 +78,10 @@ export default function Layout() {
         <div className="p-4 border-t border-gray-100/80">
           <div className="flex items-center gap-3 mb-3">
             <img
-              src={user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.username}&background=667eea&color=fff`}
+              src={avatarSrc(user?.profilePicture, user?.username)}
               alt={user?.username}
               className="w-10 h-10 rounded-full object-cover ring-2 ring-primary-100"
+              onError={(event) => useAvatarFallback(event, user?.username)}
             />
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm text-gray-900 truncate">{user?.name || user?.username}</p>

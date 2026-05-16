@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 import { HeartIcon, TrashIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import { avatarSrc, hideBrokenMedia, mediaUrl, useAvatarFallback } from '../../utils/media.js';
 
 export default function PostDetailPage() {
   const { postId } = useParams();
@@ -73,14 +74,21 @@ export default function PostDetailPage() {
   if (loading) return <div className="flex justify-center p-12"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500" /></div>;
   if (!post) return <div className="text-center p-12 text-gray-500">Post not found</div>;
 
+  const postImage = mediaUrl(post.image);
+  const postVideo = mediaUrl(post.video);
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="card">
         {/* Author */}
         <div className="flex items-center gap-3 p-4 border-b border-gray-100">
           <Link to={`/${post.author?.username}`}>
-            <img src={post.author?.profilePicture || `https://ui-avatars.com/api/?name=${post.author?.username}&background=667eea&color=fff`}
-              alt={post.author?.username} className="w-10 h-10 rounded-full object-cover" />
+            <img
+              src={avatarSrc(post.author?.profilePicture, post.author?.username)}
+              alt={post.author?.username}
+              className="w-10 h-10 rounded-full object-cover"
+              onError={(event) => useAvatarFallback(event, post.author?.username)}
+            />
           </Link>
           <div>
             <Link to={`/${post.author?.username}`} className="font-semibold text-gray-900 hover:text-primary-600">
@@ -91,10 +99,10 @@ export default function PostDetailPage() {
         </div>
 
         {/* Media */}
-        {post.video ? (
-          <video src={post.video} controls className="w-full max-h-[600px] bg-black" />
-        ) : post.image ? (
-          <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover" />
+        {postVideo ? (
+          <video src={postVideo} controls className="w-full max-h-[600px] bg-black" />
+        ) : postImage ? (
+          <img src={postImage} alt="Post" className="w-full max-h-[600px] object-cover" onError={hideBrokenMedia} />
         ) : null}
 
         {/* Caption */}
@@ -123,8 +131,12 @@ export default function PostDetailPage() {
         <div className="divide-y divide-gray-100">
           {post.comments?.filter(c => !c.isToxic).map(c => (
             <div key={c._id} className="flex items-start gap-3 p-4">
-              <img src={c.user?.profilePicture || `https://ui-avatars.com/api/?name=${c.user?.username}&background=667eea&color=fff`}
-                alt={c.user?.username} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+              <img
+                src={avatarSrc(c.user?.profilePicture, c.user?.username)}
+                alt={c.user?.username}
+                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                onError={(event) => useAvatarFallback(event, c.user?.username)}
+              />
               <div className="flex-1">
                 <Link to={`/${c.user?.username}`} className="font-semibold text-sm text-gray-900 hover:text-primary-600 mr-2">
                   {c.user?.username}
@@ -143,8 +155,12 @@ export default function PostDetailPage() {
 
         {/* Add Comment */}
         <form onSubmit={handleComment} className="p-4 flex gap-3 border-t border-gray-100">
-          <img src={user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.username}&background=667eea&color=fff`}
-            alt={user?.username} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+          <img
+            src={avatarSrc(user?.profilePicture, user?.username)}
+            alt={user?.username}
+            className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+            onError={(event) => useAvatarFallback(event, user?.username)}
+          />
           <div className="flex-1 flex gap-2">
             <input
               type="text"

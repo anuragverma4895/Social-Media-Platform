@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext.jsx'
 import { postAPI } from '../../services/api.js'
 import toast from 'react-hot-toast'
 import { formatDistanceToNow } from 'date-fns'
+import { avatarSrc, hideBrokenMedia, mediaUrl, useAvatarFallback } from '../../utils/media.js'
 import {
   HeartIcon, ChatBubbleOvalLeftIcon, ArrowPathRoundedSquareIcon, TrashIcon,
 } from '@heroicons/react/24/outline'
@@ -48,7 +49,8 @@ export default function PostCard({ post, onDelete }) {
 
   const isOwner = user?._id === post.author?._id
   const isAdmin = user?.role === 'admin'
-  const avatarUrl = (username) => `https://ui-avatars.com/api/?name=${username}&background=667eea&color=fff`
+  const postImage = mediaUrl(post.image)
+  const postVideo = mediaUrl(post.video)
 
   return (
     <article className="card mb-4 hover:shadow-md transition-all duration-300">
@@ -56,9 +58,10 @@ export default function PostCard({ post, onDelete }) {
       <div className="flex items-center justify-between p-4">
         <Link to={`/${post.author?.username}`} className="flex items-center gap-3 group">
           <img
-            src={post.author?.profilePicture || avatarUrl(post.author?.username)}
+            src={avatarSrc(post.author?.profilePicture, post.author?.username)}
             alt={post.author?.username}
             className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-primary-200 transition-all"
+            onError={(event) => useAvatarFallback(event, post.author?.username)}
           />
           <div>
             <p className="font-semibold text-sm text-gray-900 group-hover:text-primary-600 transition-colors">
@@ -77,11 +80,11 @@ export default function PostCard({ post, onDelete }) {
       </div>
 
       {/* Media */}
-      {post.video ? (
-        <video src={post.video} controls className="w-full max-h-[600px] bg-black" />
-      ) : post.image ? (
+      {postVideo ? (
+        <video src={postVideo} controls className="w-full max-h-[600px] bg-black" />
+      ) : postImage ? (
         <Link to={`/posts/${post._id}`}>
-          <img src={post.image} alt="Post" className="w-full max-h-[600px] object-cover cursor-pointer hover:brightness-95 transition-all duration-200" />
+          <img src={postImage} alt="Post" className="w-full max-h-[600px] object-cover cursor-pointer hover:brightness-95 transition-all duration-200" onError={hideBrokenMedia} />
         </Link>
       ) : null}
 

@@ -7,6 +7,7 @@ import { SparklesIcon, ChatBubbleLeftRightIcon, UserPlusIcon } from '@heroicons/
 import { chatAPI } from '../../services/chatAPI';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { avatarSrc, useAvatarFallback } from '../../utils/media.js';
 
 export default function FeedPage() {
   const { user } = useAuth();
@@ -118,8 +119,9 @@ export default function FeedPage() {
           {/* User info mini card */}
           <Link to={`/${user?.username}`} className="flex items-center gap-3 mb-6 p-4 card hover:shadow-md transition-shadow">
             <img
-              src={user?.profilePicture || `https://ui-avatars.com/api/?name=${user?.username}&background=667eea&color=fff`}
+              src={avatarSrc(user?.profilePicture, user?.username)}
               alt={user?.username} className="w-12 h-12 rounded-full object-cover"
+              onError={(event) => useAvatarFallback(event, user?.username)}
             />
             <div>
               <p className="font-semibold text-gray-900">{user?.name || user?.username}</p>
@@ -138,9 +140,10 @@ export default function FeedPage() {
                   <div key={suggestedUser._id} className="group relative flex items-center gap-3 p-2 -mx-2 rounded-2xl hover:bg-white hover:shadow-sm transition-all duration-300">
                     <Link to={`/${suggestedUser.username}`} className="relative shrink-0">
                       <img
-                        src={suggestedUser.profilePicture || `https://ui-avatars.com/api/?name=${suggestedUser.username}&background=667eea&color=fff`}
+                        src={avatarSrc(suggestedUser.profilePicture, suggestedUser.username)}
                         alt={suggestedUser.username} 
                         className="w-11 h-11 rounded-2xl object-cover ring-2 ring-gray-50 group-hover:ring-primary-100 transition-all shadow-sm"
+                        onError={(event) => useAvatarFallback(event, suggestedUser.username)}
                       />
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm">
                         <div className="w-2 h-2 bg-green-500 rounded-full" />
