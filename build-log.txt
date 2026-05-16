@@ -1,0 +1,13 @@
+﻿
+> socialmern@1.0.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1093 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                 [39m[1m[2m  0.87 kB[22m[1m[22m[2m Γöé gzip:   0.46 kB[22m
+[2mdist/[22m[35massets/index-DkZB0i84.css  [39m[1m[2m 40.31 kB[22m[1m[22m[2m Γöé gzip:   6.62 kB[22m
+[2mdist/[22m[36massets/index-Bc3KsGMV.js   [39m[1m[2m365.29 kB[22m[1m[22m[2m Γöé gzip: 111.08 kB[22m
+[32mΓ£ô built in 6.53s[39m
