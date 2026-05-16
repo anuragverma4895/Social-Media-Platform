@@ -5,8 +5,9 @@ export const avatarUrl = (username = 'User', size = 128) => {
 
 export const mediaUrl = (value) => {
   if (!value || typeof value !== 'string') return ''
-  const trimmed = value.trim()
+  let trimmed = value.trim()
   if (!trimmed || trimmed === 'null' || trimmed === 'undefined') return ''
+  if (trimmed.startsWith('http://')) trimmed = trimmed.replace('http://', 'https://')
   return trimmed
 }
 
