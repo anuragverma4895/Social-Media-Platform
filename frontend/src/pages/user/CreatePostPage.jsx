@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { postAPI } from '../../services/api.js';
+import { postAPI, aiAPI } from '../../services/api.js';
 import toast from 'react-hot-toast';
 import {
-  PhotoIcon, XMarkIcon, ArrowUpTrayIcon,
+  PhotoIcon, XMarkIcon, ArrowUpTrayIcon, SparklesIcon
 } from '@heroicons/react/24/outline';
 
 export default function CreatePostPage() {
@@ -15,6 +15,37 @@ export default function CreatePostPage() {
   const [mediaPreview, setMediaPreview] = useState('');
   const [hashtags, setHashtags] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  const handleSuggestCaption = async () => {
+    setIsAiLoading(true);
+    try {
+      const { data } = await aiAPI.suggestCaption({ topic: caption || 'A wonderful day' });
+      if (data.success) {
+        setCaption(data.data.caption);
+        toast.success('Caption generated!');
+      }
+    } catch (error) {
+      toast.error('Failed to generate caption');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  const handleGenerateHashtags = async () => {
+    setIsAiLoading(true);
+    try {
+      const { data } = await aiAPI.generateHashtags({ text: caption || 'general' });
+      if (data.success) {
+        setHashtags(data.data.hashtags);
+        toast.success('Hashtags generated!');
+      }
+    } catch (error) {
+      toast.error('Failed to generate hashtags');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
@@ -104,6 +135,20 @@ export default function CreatePostPage() {
             <span className={`text-xs font-bold transition-colors ${caption.length > 1900 ? 'text-orange-500' : 'text-gray-400'}`}>
               {caption.length} <span className="opacity-50">/ 2000</span>
             </span>
+          </div>
+
+          {/* AI Tools */}
+          <div className="flex gap-3 mt-4">
+            <button type="button" onClick={handleSuggestCaption} disabled={isAiLoading}
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-violet-100 to-fuchsia-100 text-violet-700 hover:from-violet-200 hover:to-fuchsia-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-violet-200/50">
+              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
+              {isAiLoading ? 'Thinking...' : 'AI Caption'}
+            </button>
+            <button type="button" onClick={handleGenerateHashtags} disabled={isAiLoading}
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 hover:from-blue-200 hover:to-cyan-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-blue-200/50">
+              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
+              {isAiLoading ? 'Analyzing...' : 'Auto Hashtags'}
+            </button>
           </div>
         </div>
 
