@@ -16,17 +16,26 @@ export default function CreatePostPage() {
   const [hashtags, setHashtags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState('idle');
+  const [lastUserPrompt, setLastUserPrompt] = useState('');
 
-  const handleSuggestCaption = async () => {
+  const handleSmartGenerate = async () => {
     setIsAiLoading(true);
+    setAiStatus('generating');
     try {
-      const { data } = await aiAPI.suggestCaption({ topic: caption || 'A wonderful day' });
+      const promptToUse = aiStatus === 'regenerated' ? lastUserPrompt : caption;
+      if (aiStatus !== 'regenerated') {
+        setLastUserPrompt(caption);
+      }
+      const { data } = await aiAPI.suggestCaption({ topic: promptToUse || 'A wonderful day' });
       if (data.success) {
         setCaption(data.data.caption);
-        toast.success('Caption generated!');
+        setAiStatus('regenerated');
+        toast.success('Generated successfully!');
       }
     } catch (error) {
-      toast.error('Failed to generate caption');
+      toast.error('Failed to generate content');
+      setAiStatus('idle');
     } finally {
       setIsAiLoading(false);
     }
@@ -42,23 +51,6 @@ export default function CreatePostPage() {
       }
     } catch (error) {
       toast.error('Failed to generate hashtags');
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const handleMotivationalQuote = async () => {
-    setIsAiLoading(true);
-    try {
-      const { data } = await aiAPI.suggestCaption({ 
-        topic: 'Give me a powerful, highly inspiring and motivational quote suitable for a social media post. Do not include hashtags.' 
-      });
-      if (data.success) {
-        setCaption(data.data.caption);
-        toast.success('Motivation added!');
-      }
-    } catch (error) {
-      toast.error('Failed to generate quote');
     } finally {
       setIsAiLoading(false);
     }
@@ -139,8 +131,11 @@ export default function CreatePostPage() {
         <div className="card-glass p-5 hover-3d border-primary-50">
           <textarea
             value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Write a captivating caption... Use #hashtags to reach more people ✨"
+            onChange={(e) => {
+              setCaption(e.target.value);
+              if (aiStatus === 'regenerated') setAiStatus('idle');
+            }}
+            placeholder="Write a captivating caption, or type a prompt like 'good morning shayari' and click AI Generate ✨"
             className="w-full resize-none bg-transparent text-gray-800 placeholder-gray-400/70 focus:outline-none text-lg leading-relaxed min-h-[120px]"
             maxLength={2000}
           />
@@ -156,20 +151,15 @@ export default function CreatePostPage() {
 
           {/* AI Tools */}
           <div className="flex flex-wrap gap-3 mt-4">
-            <button type="button" onClick={handleSuggestCaption} disabled={isAiLoading}
+            <button type="button" onClick={handleSmartGenerate} disabled={isAiLoading}
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-violet-100 to-fuchsia-100 text-violet-700 hover:from-violet-200 hover:to-fuchsia-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-violet-200/50 whitespace-nowrap">
-              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
-              {isAiLoading ? 'Thinking...' : 'AI Caption'}
-            </button>
-            <button type="button" onClick={handleMotivationalQuote} disabled={isAiLoading}
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 hover:from-amber-200 hover:to-orange-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-amber-200/50 whitespace-nowrap">
-              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
-              {isAiLoading ? 'Inspiring...' : 'Motivational Quote'}
+              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-spin' : ''}`} /> 
+              {aiStatus === 'generating' ? 'Writing...' : aiStatus === 'regenerated' ? '🔄 Try Another' : caption.trim() ? '✨ Generate from text' : '✨ Generate AI Caption'}
             </button>
             <button type="button" onClick={handleGenerateHashtags} disabled={isAiLoading}
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 hover:from-blue-200 hover:to-cyan-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-blue-200/50 whitespace-nowrap">
               <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
-              {isAiLoading ? 'Analyzing...' : 'Auto Hashtags'}
+              {isAiLoading && aiStatus === 'idle' ? 'Analyzing...' : 'Auto Hashtags'}
             </button>
           </div>
         </div>

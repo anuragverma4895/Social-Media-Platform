@@ -59,7 +59,8 @@ const suggestCaption = asyncHandler(async (req, res) => {
   const topic = String(req.body.topic || req.body.prompt || req.body.text || 'this moment').trim();
   try {
     const model = getModel();
-    const prompt = `Suggest a catchy, engaging, and creative social media caption (with emojis) for the following topic. Return ONLY the caption text without quotes. Topic: "${topic}"`;
+    const prompt = `Act as an expert social media content creator. The user has provided a prompt or topic: "${topic}". 
+Generate exactly what they requested (e.g., a motivational quote, a shayari, a joke, or a standard caption). Make it highly engaging, include emojis, and return ONLY the final generated text without surrounding quotes.`;
     const result = await model.generateContent(prompt);
     const responseText = result.response.text().trim().replace(/^"|"$/g, '');
     
