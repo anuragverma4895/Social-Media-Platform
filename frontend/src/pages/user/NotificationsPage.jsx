@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { notificationAPI } from '../../services/api.js';
 import { useSocket } from '../../context/SocketContext.jsx';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,6 +26,15 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const { notifications: socketNotifs, clearNotifications } = useSocket();
+  const navigate = useNavigate();
+
+  const handleNotificationClick = (notif) => {
+    if (notif.type === 'follow') {
+      if (notif.sender?.username) navigate(`/${notif.sender.username}`);
+    } else if (['like', 'comment', 'share'].includes(notif.type) && notif.post) {
+      navigate(`/posts/${notif.post}`);
+    }
+  };
 
   useEffect(() => {
     const fetch = async () => {
@@ -41,7 +50,8 @@ export default function NotificationsPage() {
     fetch();
   }, []);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
     try {
       await notificationAPI.deleteNotification(id);
       setNotifications(prev => prev.filter(n => n._id !== id));
@@ -69,7 +79,11 @@ export default function NotificationsPage() {
             const Icon = typeIcons[notif.type] || BellIcon;
             const colors = typeColors[notif.type] || 'text-gray-500 bg-gray-50';
             return (
-              <div key={notif._id} className={`card p-4 flex items-center gap-4 transition-all duration-200 hover:shadow-sm ${!notif.isRead ? 'bg-primary-50/50 border-primary-100' : ''}`}>
+              <div 
+                key={notif._id} 
+                onClick={() => handleNotificationClick(notif)}
+                className={`card p-4 flex items-center gap-4 transition-all duration-200 hover:shadow-sm cursor-pointer ${!notif.isRead ? 'bg-primary-50/50 border-primary-100' : ''}`}
+              >
                 <img
                   src={notif.sender?.profilePicture || `https://ui-avatars.com/api/?name=${notif.sender?.username}&background=667eea&color=fff`}
                   alt={notif.sender?.username} className="w-12 h-12 rounded-full object-cover flex-shrink-0"
@@ -79,7 +93,11 @@ export default function NotificationsPage() {
                     <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full ${colors}`}>
                       <Icon className="w-3 h-3" />
                     </span>
-                    <Link to={`/${notif.sender?.username}`} className="font-semibold hover:text-primary-600">
+                    <Link 
+                      to={`/${notif.sender?.username}`} 
+                      onClick={(e) => e.stopPropagation()}
+                      className="font-semibold hover:text-primary-600"
+                    >
                       {notif.sender?.username}
                     </Link>{' '}
                     {notif.message?.replace(notif.sender?.username + ' ', '')}
@@ -88,7 +106,7 @@ export default function NotificationsPage() {
                     {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
                   </p>
                 </div>
-                <button onClick={() => handleDelete(notif._id)}
+                <button onClick={(e) => handleDelete(e, notif._id)}
                   className="text-gray-300 hover:text-gray-500 text-xs shrink-0 hover:bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center transition-colors">✕</button>
               </div>
             );
