@@ -9,12 +9,12 @@ import {
 } from '@heroicons/react/24/outline'
 
 const navItems = [
-  { to: '/feed',          label: 'Home',          icon: HomeIcon },
-  { to: '/explore',       label: 'Explore',       icon: GlobeAltIcon },
-  { to: '/messages',      label: 'Messages',      icon: ChatBubbleLeftRightIcon, badge: true },
-  { to: '/create',        label: 'Create Post',   icon: PlusCircleIcon },
+  { to: '/feed', label: 'Home', icon: HomeIcon },
+  { to: '/explore', label: 'Explore', icon: GlobeAltIcon },
+  { to: '/messages', label: 'Messages', icon: ChatBubbleLeftRightIcon, badge: true },
+  { to: '/create', label: 'Create Post', icon: PlusCircleIcon },
   { to: '/notifications', label: 'Notifications', icon: BellIcon, badge: true },
-  { to: '/search',        label: 'Search',        icon: MagnifyingGlassIcon },
+  { to: '/search', label: 'Search', icon: MagnifyingGlassIcon },
 ]
 
 export default function Layout() {
@@ -58,10 +58,10 @@ export default function Layout() {
                       (to === '/messages' && notifications.filter(n => n.type === 'chat').length > 0) ||
                       (to === '/notifications' && notifications.filter(n => n.type !== 'chat').length > 0)
                     ) && (
-                      <span className={`absolute -top-1.5 -right-2 ${to === '/messages' ? 'min-w-[20px] h-[20px] px-1' : 'w-3.5 h-3.5'} bg-gradient-to-br from-red-400 to-red-600 border-2 border-white rounded-full flex items-center justify-center text-[11px] text-white font-bold shadow-md animate-bounce`}>
-                        {to === '/messages' ? (notifications.filter(n => n.type === 'chat').length > 9 ? '9+' : notifications.filter(n => n.type === 'chat').length) : ''}
-                      </span>
-                    )}
+                        <span className={`absolute -top-1.5 -right-2 ${to === '/messages' ? 'min-w-[20px] h-[20px] px-1' : 'w-3.5 h-3.5'} bg-gradient-to-br from-red-400 to-red-600 border-2 border-white rounded-full flex items-center justify-center text-[11px] text-white font-bold shadow-md animate-bounce`}>
+                          {to === '/messages' ? (notifications.filter(n => n.type === 'chat').length > 9 ? '9+' : notifications.filter(n => n.type === 'chat').length) : ''}
+                        </span>
+                      )}
                   </div>
                   <span className="transform group-hover:translate-x-1 transition-transform duration-300">{label}</span>
                 </>
