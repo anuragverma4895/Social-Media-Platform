@@ -1,56 +1,94 @@
-# Social Media Platform
+# 🌟 Social Media Platform
 
-MERN social media app with a Vite React frontend, Express/MongoDB backend, Cloudinary uploads, email OTP, JWT auth, admin panel, and Socket.IO realtime features.
+A fully-featured, real-time Social Media application built using the **MERN stack** (MongoDB, Express, React, Node.js). It includes a sleek UI powered by **Vite & Tailwind CSS**, real-time interactions with **Socket.IO**, media uploads via **Cloudinary**, and robust authentication using **JWT and Email OTP**.
 
-## Project Structure
+## ✨ Key Features
+
+- **🔐 Authentication & Security:** Secure JWT-based auth, email verification via OTP, and password recovery.
+- **💬 Real-Time Chat & Notifications:** Instant messaging and real-time alerts for likes, comments, and follows using Socket.IO.
+- **📸 Media Uploads:** Seamless image and media handling with Cloudinary integration.
+- **🌐 Dynamic Feed & Explore:** Personalized user feeds and an explore page to discover new content and users.
+- **🛠️ Admin Dashboard:** Built-in admin panel to manage users, monitor posts, and maintain the platform.
+- **🎨 Modern UI/UX:** Responsive, glassmorphic design crafted with React, Tailwind CSS, and Heroicons.
+
+## 🚀 Tech Stack
+
+### Frontend
+- **Framework:** React (Vite)
+- **Styling:** Tailwind CSS
+- **Routing:** React Router
+- **State & Notifications:** Context API, React Hot Toast
+
+### Backend
+- **Server:** Node.js, Express.js
+- **Database:** MongoDB (Mongoose)
+- **Real-Time:** Socket.IO
+- **Auth & Services:** JWT, Nodemailer, Cloudinary
+
+## 📂 Project Structure
 
 ```text
 Social-Media-Platform/
-  backend/        Node.js + Express API
-  frontend/       React + Vite frontend
-  render.yaml     Render Blueprint for both services
+├── backend/        # Node.js + Express API & Socket server
+├── frontend/       # React + Vite frontend application
+└── render.yaml     # Render Blueprint for automated deployment
 ```
 
-## Local Setup
+## 🛠️ Local Development Setup
 
+### 1. Clone the repository
 ```bash
-# Frontend
-cd frontend
-npm install
-npm run dev
+git clone https://github.com/anuragverma4895/Social-Media-Platform.git
+cd Social-Media-Platform
+```
 
-# Backend, in another terminal
+### 2. Configure Environment Variables
+Create `.env` files in both the `frontend/` and `backend/` directories. Use the provided `.env.example` files as templates.
+
+**Backend Required Variables (`backend/.env`):**
+```env
+MONGO_URI=your_mongodb_connection_string
+ADMIN_SECRET_KEY=your_admin_secret
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+EMAIL_HOST=your_smtp_host
+EMAIL_PORT=your_smtp_port
+EMAIL_USER=your_email
+EMAIL_PASS=your_email_password
+JWT_SECRET=your_jwt_secret
+```
+
+### 3. Install Dependencies & Run
+
+**Start the Backend:**
+```bash
 cd backend
 npm install
 npm run dev
 ```
 
-Create `frontend/.env` from `frontend/.env.example` and `backend/.env` from `backend/.env.example`.
-
-## Render Deployment
-
-1. Push this repo to GitHub.
-2. In Render, create a new Blueprint and select this repository.
-3. Render will read `render.yaml` and create:
-   - `social-media-platform-backend`
-   - `social-media-platform-frontend`
-4. Fill the required backend environment variables when Render asks for them.
-5. Deploy the Blueprint.
-
-The frontend receives the backend URL from the backend service's `RENDER_EXTERNAL_URL`, then builds with `VITE_BACKEND_URL`. The backend allows local origins and Render `*.onrender.com` origins by default. Add custom domains to `CORS_ORIGINS` later if needed.
-
-## Required Backend Environment Variables
-
-```text
-MONGO_URI
-ADMIN_SECRET_KEY
-CLOUDINARY_CLOUD_NAME
-CLOUDINARY_API_KEY
-CLOUDINARY_API_SECRET
-EMAIL_HOST
-EMAIL_PORT
-EMAIL_USER
-EMAIL_PASS
-GEMINI_API_KEY
-OPENAI_API_KEY
+**Start the Frontend:**
+Open a new terminal window:
+```bash
+cd frontend
+npm install
+npm run dev
 ```
+
+The app will be running locally at `http://localhost:5173`.
+
+## ☁️ Deployment (Render)
+
+This project includes a `render.yaml` Blueprint for easy, automated deployment.
+
+1. Push your repository to GitHub.
+2. In your [Render](https://render.com) dashboard, create a new **Blueprint** and connect this repository.
+3. Render will automatically provision two services:
+   - `social-media-platform-backend` (Web Service)
+   - `social-media-platform-frontend` (Static Site)
+4. Fill in the required environment variables when prompted by Render.
+5. Deploy! Render will handle the rest, including injecting the backend URL into the frontend build.
+
+---
+*Built with ❤️ for a modern social web experience.*
