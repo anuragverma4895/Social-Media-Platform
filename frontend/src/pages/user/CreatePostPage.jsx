@@ -47,6 +47,23 @@ export default function CreatePostPage() {
     }
   };
 
+  const handleMotivationalQuote = async () => {
+    setIsAiLoading(true);
+    try {
+      const { data } = await aiAPI.suggestCaption({ 
+        topic: 'Give me a powerful, highly inspiring and motivational quote suitable for a social media post. Do not include hashtags.' 
+      });
+      if (data.success) {
+        setCaption(data.data.caption);
+        toast.success('Motivation added!');
+      }
+    } catch (error) {
+      toast.error('Failed to generate quote');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -138,14 +155,19 @@ export default function CreatePostPage() {
           </div>
 
           {/* AI Tools */}
-          <div className="flex gap-3 mt-4">
+          <div className="flex flex-wrap gap-3 mt-4">
             <button type="button" onClick={handleSuggestCaption} disabled={isAiLoading}
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-violet-100 to-fuchsia-100 text-violet-700 hover:from-violet-200 hover:to-fuchsia-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-violet-200/50">
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-violet-100 to-fuchsia-100 text-violet-700 hover:from-violet-200 hover:to-fuchsia-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-violet-200/50 whitespace-nowrap">
               <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
               {isAiLoading ? 'Thinking...' : 'AI Caption'}
             </button>
+            <button type="button" onClick={handleMotivationalQuote} disabled={isAiLoading}
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 hover:from-amber-200 hover:to-orange-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-amber-200/50 whitespace-nowrap">
+              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
+              {isAiLoading ? 'Inspiring...' : 'Motivational Quote'}
+            </button>
             <button type="button" onClick={handleGenerateHashtags} disabled={isAiLoading}
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 hover:from-blue-200 hover:to-cyan-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-blue-200/50">
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 hover:from-blue-200 hover:to-cyan-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-blue-200/50 whitespace-nowrap">
               <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
               {isAiLoading ? 'Analyzing...' : 'Auto Hashtags'}
             </button>
