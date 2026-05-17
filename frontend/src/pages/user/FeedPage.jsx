@@ -3,6 +3,7 @@ import { postAPI, userAPI } from '../../services/api.js';
 import PostCard from '../../components/posts/PostCard.jsx';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import { useSocket } from '../../context/SocketContext.jsx';
 import { SparklesIcon, ChatBubbleLeftRightIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { chatAPI } from '../../services/chatAPI';
 import toast from 'react-hot-toast';
@@ -11,6 +12,7 @@ import { avatarSrc, useAvatarFallback } from '../../utils/media.js';
 
 export default function FeedPage() {
   const { user } = useAuth();
+  const { onlineUsers } = useSocket();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -136,7 +138,9 @@ export default function FeedPage() {
                 <Link to="/explore" className="text-xs font-bold text-primary-600 hover:text-primary-700 transition-colors uppercase tracking-wider">See all</Link>
               </div>
               <div className="space-y-4">
-                {suggestions.map((suggestedUser) => (
+                {suggestions.map((suggestedUser) => {
+                  const isOnline = onlineUsers.includes(suggestedUser._id);
+                  return (
                   <div key={suggestedUser._id} className="group relative flex items-center gap-3 p-2 -mx-2 rounded-2xl hover:bg-white hover:shadow-sm transition-all duration-300">
                     <Link to={`/${suggestedUser.username}`} className="relative shrink-0">
                       <img
@@ -145,9 +149,11 @@ export default function FeedPage() {
                         className="w-11 h-11 rounded-2xl object-cover ring-2 ring-gray-50 group-hover:ring-primary-100 transition-all shadow-sm"
                         onError={(event) => useAvatarFallback(event, suggestedUser.username)}
                       />
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm">
-                        <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      </div>
+                      {isOnline && (
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-sm">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                        </div>
+                      )}
                     </Link>
                     <div className="flex-1 min-w-0">
                       <Link to={`/${suggestedUser.username}`} className="block">
@@ -172,7 +178,7 @@ export default function FeedPage() {
                       </button>
                     </div>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           )}
