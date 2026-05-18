@@ -47,31 +47,10 @@ export default function CreatePostPage() {
       const { data } = await aiAPI.generateHashtags({ text: caption || 'general' });
       if (data.success) {
         setHashtags(data.data.hashtags);
-        const tagsString = data.data.hashtags.join(' ');
-        setCaption(prev => prev + (prev.trim() ? '\n\n' : '') + tagsString);
-        toast.success('Hashtags added!');
+        toast.success('Hashtags generated!');
       }
     } catch (error) {
       toast.error('Failed to generate hashtags');
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
-
-  const handleGenerateGenericCaption = async () => {
-    setIsAiLoading(true);
-    setAiStatus('generating');
-    try {
-      const { data } = await aiAPI.suggestCaption({ topic: 'general engaging social media post' });
-      if (data.success) {
-        setCaption(data.data.caption);
-        setAiStatus('regenerated');
-        setLastUserPrompt('general engaging social media post');
-        toast.success('Caption generated!');
-      }
-    } catch (error) {
-      toast.error('Failed to generate caption');
-      setAiStatus('idle');
     } finally {
       setIsAiLoading(false);
     }
@@ -172,20 +151,15 @@ export default function CreatePostPage() {
 
           {/* AI Tools */}
           <div className="flex flex-wrap gap-3 mt-4">
-            <button type="button" onClick={handleSmartGenerate} disabled={isAiLoading || !caption.trim()}
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-violet-100 to-fuchsia-100 text-violet-700 hover:from-violet-200 hover:to-fuchsia-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-violet-200/50 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-              <SparklesIcon className={`w-4 h-4 ${isAiLoading && aiStatus === 'generating' ? 'animate-spin' : ''}`} /> 
-              {aiStatus === 'generating' ? 'Writing...' : aiStatus === 'regenerated' ? '🔄 Try Another' : '✨ Generate from Prompt'}
-            </button>
-            <button type="button" onClick={handleGenerateGenericCaption} disabled={isAiLoading}
-              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 hover:from-emerald-200 hover:to-teal-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-emerald-200/50 whitespace-nowrap">
-              <SparklesIcon className="w-4 h-4" /> 
-              ✨ Suggest AI Caption
+            <button type="button" onClick={handleSmartGenerate} disabled={isAiLoading}
+              className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-violet-100 to-fuchsia-100 text-violet-700 hover:from-violet-200 hover:to-fuchsia-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-violet-200/50 whitespace-nowrap">
+              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-spin' : ''}`} /> 
+              {aiStatus === 'generating' ? 'Writing...' : aiStatus === 'regenerated' ? '🔄 Try Another' : caption.trim() ? '✨ Generate from text' : '✨ Generate AI Caption'}
             </button>
             <button type="button" onClick={handleGenerateHashtags} disabled={isAiLoading}
               className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 hover:from-blue-200 hover:to-cyan-200 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95 border border-blue-200/50 whitespace-nowrap">
-              <SparklesIcon className={`w-4 h-4 ${isAiLoading && aiStatus !== 'generating' ? 'animate-pulse' : ''}`} /> 
-              {isAiLoading && aiStatus !== 'generating' ? 'Analyzing...' : 'Auto Hashtags'}
+              <SparklesIcon className={`w-4 h-4 ${isAiLoading ? 'animate-pulse' : ''}`} /> 
+              {isAiLoading && aiStatus === 'idle' ? 'Analyzing...' : 'Auto Hashtags'}
             </button>
           </div>
         </div>
