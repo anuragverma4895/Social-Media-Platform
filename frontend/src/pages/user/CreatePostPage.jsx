@@ -45,9 +45,13 @@ export default function CreatePostPage() {
     setIsAiLoading(true);
     try {
       const { data } = await aiAPI.generateHashtags({ text: caption || 'general' });
-      if (data.success) {
+      if (data.success && data.data.hashtags && data.data.hashtags.length > 0) {
         setHashtags(data.data.hashtags);
-        toast.success('Hashtags generated!');
+        const tagsString = data.data.hashtags.join(' ');
+        setCaption(prev => prev + (prev.trim() ? '\n\n' : '') + tagsString);
+        toast.success('Hashtags generated and added!');
+      } else {
+        toast.error('No hashtags could be generated');
       }
     } catch (error) {
       toast.error('Failed to generate hashtags');

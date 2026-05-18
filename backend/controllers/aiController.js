@@ -46,7 +46,21 @@ const generateHashtags = asyncHandler(async (req, res) => {
     const prompt = `Generate up to 8 highly relevant and trending hashtags for a social media post with the following content. Return ONLY a single line comma-separated list of hashtags (e.g., #tag1, #tag2). Content: "${text}"`;
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
-    const hashtags = responseText.split(',').map(tag => tag.trim().replace(/^([^#])/, '#$1')).filter(t => t !== '#' && t.length > 1);
+    
+    // Robust parsing: extract words starting with #, or split by comma/space
+    let hashtags = [];
+    const hashMatches = responseText.match(/#[\w\u0590-\u05ff\u0600-\u06ff\u0900-\u097f]+/g); // Added support for unicode like Hindi/Arabic etc if any
+    if (hashMatches && hashMatches.length > 0) {
+      hashtags = hashMatches;
+    } else {
+      hashtags = responseText.split(/[\s,]+/)
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 1)
+        .map(tag => tag.startsWith('#') ? tag : `#${tag}`);
+    }
+    
+    // remove duplicates and limit to 10
+    hashtags = [...new Set(hashtags)].slice(0, 10);
     
     res.json({ success: true, data: { hashtags } });
   } catch (error) {
