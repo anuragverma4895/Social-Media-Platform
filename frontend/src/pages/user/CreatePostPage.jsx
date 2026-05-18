@@ -44,7 +44,7 @@ export default function CreatePostPage() {
   const handleGenerateHashtags = async () => {
     setIsAiLoading(true);
     try {
-      const { data } = await aiAPI.generateHashtags({ text: caption || 'general' });
+      const { data } = await aiAPI.generateHashtags({ text: caption.trim() || 'a general engaging social media post' });
       console.log('Hashtags response:', data);
       if (data && data.success && data.data && data.data.hashtags && data.data.hashtags.length > 0) {
         setHashtags(data.data.hashtags);

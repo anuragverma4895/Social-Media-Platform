@@ -43,7 +43,10 @@ const generateHashtags = asyncHandler(async (req, res) => {
   const text = String(req.body.text || req.body.caption || '').trim();
   try {
     const model = getModel();
-    const prompt = `Generate up to 8 highly relevant and trending hashtags for a social media post with the following content. Return ONLY a single line comma-separated list of hashtags (e.g., #tag1, #tag2). Content: "${text}"`;
+    const prompt = `Act as an expert social media manager. I have a post with the following text content: "${text}".
+Generate 5-10 highly engaging, strictly relevant, and trending hashtags specifically tailored to this exact text. 
+Do not provide generic tags if the text is specific.
+Format Requirement: Return ONLY a single line space-separated list of hashtags (e.g. #tag1 #tag2). Do NOT include any introductory or conversational text whatsoever.`;
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
